@@ -3,8 +3,8 @@
 #include <SDL/SDL_ttf.h>
 #include <time.h>
 
-#define SCREEN_WIDTH    1280
-#define SCREEN_HEIGHT   1024
+#define SCREEN_WIDTH    1920
+#define SCREEN_HEIGHT   1080
 #define SCREEN_BPP      32
 #define SURF_TYPE       SDL_HWSURFACE
 #define FRAMERATE       24
@@ -15,7 +15,7 @@
 
 #define SIDEBAR_WIDTH   200
 
-#define ROOM_ATTEMPTS   500
+#define ROOM_ATTEMPTS   5000
 #define ROOM_BRANCH_ATTEMPTS     50
 
 typedef enum {
@@ -162,37 +162,52 @@ static void
 map_add_corridor(SDL_Rect r) {
     SDL_Rect corridor;
     SDL_Rect room;
+    Point doorin;
     Exit e;
     int i;
     int x, y;
 
-    /* Assume East for now */
-    /* e.direction = rand() % LAST_DIRECTION; */
-    e.direction = SOUTH;
-
+    /* handle corridors in different directions */
+    e.direction = rand() % LAST_DIRECTION;
     if (e.direction == NORTH) {
         corridor.x = r.x + rand() % r.w;
         corridor.h = rand() % 5 + 1;
-        corridor.y = r.y - corridor.h;
+        corridor.y = r.y - corridor.h - 1;
         corridor.w = 1;
         e.point.x = corridor.x;
         e.point.y = corridor.y;
+        doorin.x = corridor.x;
+        doorin.y = r.y - 1;
     }
     else if (e.direction == SOUTH) {
         corridor.x = r.x + rand() % r.w;
         corridor.h = rand() % 5 + 1;
-        corridor.y = r.y + r.h;
+        corridor.y = r.y + r.h + 1;
         corridor.w = 1;
         e.point.x = corridor.x;
         e.point.y = corridor.y + corridor.h;
+        doorin.x = corridor.x;
+        doorin.y = corridor.y - 1;
     }
     else if (e.direction == EAST) {
-        corridor.x = r.x + r.w;
+        corridor.x = r.x + r.w + 1;
         corridor.w = rand() % 5 + 1;
         corridor.y = r.y + rand() % r.h;
         corridor.h = 1;
         e.point.x = corridor.x + corridor.w;
         e.point.y = corridor.y;
+        doorin.x = corridor.x - 1;
+        doorin.y = corridor.y;
+    }
+    else { /* WEST */
+        corridor.w = rand() % 5 + 1;
+        corridor.x = r.x - corridor.w - 1;
+        corridor.y = r.y + rand() % r.h;
+        corridor.h = 1;
+        e.point.x = corridor.x;
+        e.point.y = corridor.y;
+        doorin.x = r.x - 1;
+        doorin.y = corridor.y;
     }
 
     /* If our attempted corridor doesn't fit */
@@ -212,11 +227,13 @@ map_add_corridor(SDL_Rect r) {
         for (x = corridor.x; x < corridor.x + corridor.w; ++x)
             tiles[x][y].base = FLOOR;
     map_add_room(room);
+    /* draw doors */
     tiles[e.point.x][e.point.y].base = LAVA;
+    tiles[doorin.x][doorin.y].base = LAVA;
 
     /* A small chance of a fork */
     /* if (rand() % 10 == 0) */
-    /*     map_add_corridor(r); */
+        /* map_add_corridor(corridor); */
 }
 
 static void
@@ -234,8 +251,8 @@ map_add_room(SDL_Rect r) {
 
     /* A few more attempts randomly to branch */
     /* So that every room can fill free space if there is plenty */
-    for (x = 0; x < ROOM_BRANCH_ATTEMPTS; ++x)
-        map_add_corridor(r);
+    /* for (x = 0; x < ROOM_BRANCH_ATTEMPTS; ++x) */
+        /* map_add_corridor(r); */
 }
 
 static SDL_Rect
@@ -258,7 +275,8 @@ map_find_room(Exit *e) {
         r.y = e->point.y - rand() % r.h;
     }
     else { /* WEST */
-
+        r.x = e->point.x - r.w;
+        r.y = e->point.y - rand() % r.h;
     }
 
     return r;
@@ -278,8 +296,8 @@ map_make(void) {
 
     map_making_counter = 0;
 
-    r.x = 5;
-    r.y = 5;
+    r.x = 20;
+    r.y = 20;
     r.w = rand() % 10 + 2;
     r.h = rand() % 10 + 2;
     map_add_room(r);
@@ -296,8 +314,8 @@ map_validate_room(SDL_Rect *r) {
     if (r->y + r->h >= TILES_HIGH)
         return 0;
 
-    for (y = r->y; y < r->y + r->h; ++y)
-        for (x = r->x; x < r->x + r->w; ++x)
+    for (y = r->y - 1; y <= r->y + r->h; ++y)
+        for (x = r->x - 1; x <= r->x + r->w; ++x)
             if (tiles[x][y].base != NOTHING)
                 return 0;
 
