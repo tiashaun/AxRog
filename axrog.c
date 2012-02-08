@@ -64,8 +64,9 @@ typedef struct {
 } Point;
 
 typedef struct {
-    Point point;
     Direction direction;
+    int x;
+    int y;
 } Exit;
 
 typedef struct Room Room;
@@ -79,23 +80,20 @@ typedef struct {
 struct Room {
     SDL_Rect area;
     int visible;
-    Corridor *n;
-    Corridor *s;
-    Corridor *e;
-    Corridor *w;
+    Corridor *corridors[LAST_DIRECTION];
 };
 
 static void complete_redraw(void);
 static void handle_keypress(SDL_KeyboardEvent *key);
 static void init(void);
 static SDL_Surface* load_image(char *filename);
-static void map_add_corridor(SDL_Rect r);
-static void map_add_room(SDL_Rect r);
+static Corridor* map_add_corridor(Room *r, Direction d);
+static Room* map_add_room(SDL_Rect r, Corridor *c, Direction entered_from);
 SDL_Rect map_find_room(Exit *e);
 static void map_make(void);
 static void map_move(SDLKey key);
-static int map_validate_room(SDL_Rect *r);
-static void map_wrap_with_walls(void);
+static int map_validate_rect(SDL_Rect *r);
+static Direction opp_direction(Direction d);
 static void run(void);
 static void sidebar_blit(void);
 static void sidebar_build(void);
@@ -113,7 +111,9 @@ static SDL_Surface *tileimg[LAST_TILE];
 static Uint32 base_frame_delay;
 static int RUNNING;
 static SDL_Event event;
-static map_making_counter;
+static Room *rootroom;
+
+static int roomcount = 0;
 
 static void
 complete_redraw(void) {
@@ -188,93 +188,131 @@ load_image(char *filename) {
     return s2;
 }
 
-static void
-map_add_corridor(SDL_Rect r) {
-    SDL_Rect corridor;
+static Corridor*
+map_add_corridor(Room *r, Direction d) {
     SDL_Rect room;
-    Point doorin;
-    Exit e;
-    int i;
+    int i = 0;
     int x, y;
+    Corridor *c;
+
+    c = malloc(sizeof(Corridor));
+    c->r2 = r;
+    c->e2.direction = opp_direction(d);
+    c->e1.direction = d;
 
     /* handle corridors in different directions */
-    e.direction = rand() % LAST_DIRECTION;
-    if (e.direction == NORTH) {
-        corridor.x = r.x + rand() % r.w;
-        corridor.h = CORRIDOR_LENGTH();
-        corridor.y = r.y - corridor.h - 1;
-        corridor.w = 1;
-        e.point.x = corridor.x;
-        e.point.y = corridor.y;
-        doorin.x = corridor.x;
-        doorin.y = r.y - 1;
+    if (d == NORTH) {
+        c->area.x = r->area.x + rand() % r->area.w;
+        c->area.h = CORRIDOR_LENGTH();
+        c->area.y = r->area.y - c->area.h - 1;
+        c->area.w = 1;
+        c->e1.x = c->area.x;
+        c->e1.y = c->area.y;
+        c->e2.x = c->area.x;
+        c->e2.y = r->area.y - 1;
     }
-    else if (e.direction == SOUTH) {
-        corridor.x = r.x + rand() % r.w;
-        corridor.h = CORRIDOR_LENGTH();
-        corridor.y = r.y + r.h + 1;
-        corridor.w = 1;
-        e.point.x = corridor.x;
-        e.point.y = corridor.y + corridor.h;
-        doorin.x = corridor.x;
-        doorin.y = corridor.y - 1;
+    else if (d == SOUTH) {
+        c->area.x = r->area.x + rand() % r->area.w;
+        c->area.h = CORRIDOR_LENGTH();
+        c->area.y = r->area.y + r->area.h + 1;
+        c->area.w = 1;
+        c->e1.x = c->area.x;
+        c->e1.y = c->area.y + c->area.h;
+        c->e2.x = c->area.x;
+        c->e2.y = c->area.y - 1;
     }
-    else if (e.direction == EAST) {
-        corridor.x = r.x + r.w + 1;
-        corridor.w = CORRIDOR_LENGTH();
-        corridor.y = r.y + rand() % r.h;
-        corridor.h = 1;
-        e.point.x = corridor.x + corridor.w;
-        e.point.y = corridor.y;
-        doorin.x = corridor.x - 1;
-        doorin.y = corridor.y;
+    else if (d == EAST) {
+        c->area.x = r->area.x + r->area.w + 1;
+        c->area.w = CORRIDOR_LENGTH();
+        c->area.y = r->area.y + rand() % r->area.h;
+        c->area.h = 1;
+        c->e1.x = c->area.x + c->area.w;
+        c->e1.y = c->area.y;
+        c->e2.x = c->area.x - 1;
+        c->e2.y = c->area.y;
     }
     else { /* WEST */
-        corridor.w = CORRIDOR_LENGTH();
-        corridor.x = r.x - corridor.w - 1;
-        corridor.y = r.y + rand() % r.h;
-        corridor.h = 1;
-        e.point.x = corridor.x;
-        e.point.y = corridor.y;
-        doorin.x = r.x - 1;
-        doorin.y = corridor.y;
+        c->area.w = CORRIDOR_LENGTH();
+        c->area.x = r->area.x - c->area.w - 1;
+        c->area.y = r->area.y + rand() % r->area.h;
+        c->area.h = 1;
+        c->e1.x = c->area.x;
+        c->e1.y = c->area.y;
+        c->e2.x = r->area.x - 1;
+        c->e2.y = c->area.y;
     }
 
     /* If our attempted corridor doesn't fit */
-    if (!map_validate_room(&corridor))
-        return;
+    if (!map_validate_rect(&c->area)) {
+        free(c);
+        return NULL;
+    }
 
     /* See if this corridor leads anywhere */
     do {
-        room = map_find_room(&e);
-    } while (++map_making_counter < ROOM_ATTEMPTS && !map_validate_room(&room));
+        room = map_find_room(&c->e1);
+    } while (++i < ROOM_ATTEMPTS && !map_validate_rect(&room));
 
-    if (!map_validate_room(&room))
-        return;
+    if (!map_validate_rect(&room)) {
+        free(c);
+        return NULL;
+    }
 
     /* Draw the corridor and add the room */
-    for (y = corridor.y; y < corridor.y + corridor.h; ++y)
-        for (x = corridor.x; x < corridor.x + corridor.w; ++x)
+    /* This needs to be removed when we have a proper draw_rect function */
+    for (y = c->area.y; y < c->area.y + c->area.h; ++y)
+        for (x = c->area.x; x < c->area.x + c->area.w; ++x)
             tiles[x][y].base = FLOOR;
-    map_add_room(room);
+    c->r1 = map_add_room(room, c, c->e1.direction);
     /* draw doors */
-    tiles[e.point.x][e.point.y].base = DOOR;
-    tiles[doorin.x][doorin.y].base = DOOR;
+    tiles[c->e1.x][c->e1.y].base = DOOR;
+    tiles[c->e2.x][c->e2.y].base = DOOR;
+
+    printf("Corridor created at\tx:%d\ty:%d\tw:%d\th:%d\n", c->area.x, c->area.y,
+        c->area.w, c->area.h);
+    printf("Room created at\t\tx:%d\ty:%d\tw:%d\th:%d\n", room.x, room.y,
+        room.w, room.h);
+    printf("Room count: %d\n", roomcount);
+    puts("==========");
+
+    return c;
 }
 
-static void
-map_add_room(SDL_Rect r) {
+static Room*
+map_add_room(SDL_Rect r, Corridor *c, Direction entered_from) {
     int x, y;
-    SDL_Rect c;
-    int i;
+    Direction d;
+    Room *rm;
+    
+    rm = malloc(sizeof(Room));
+    if (!rm) {
+        fputs("Error allocating space for room!", stderr);
+        return NULL;
+    }
 
+    rm->area = r;
+    rm->visible = 0;
+    rm->corridors[NORTH] = NULL;
+    rm->corridors[SOUTH] = NULL;
+    rm->corridors[EAST] = NULL;
+    rm->corridors[WEST] = NULL;
+
+    if (c && entered_from != LAST_DIRECTION)
+        rm->corridors[entered_from] = c;
+
+    /* To be gutted out when we have a proper show_room function */
     for (y = r.y; y < r.y + r.h; ++y)
         for (x = r.x; x < r.x + r.w; ++x)
             tiles[x][y].base = FLOOR;
 
-    for (i = 0; i < ROOM_BRANCH_ATTEMPTS; ++i) {
-        map_add_corridor(r);
+    for (d = 0; d < LAST_DIRECTION; ++d) {
+        if (rm->corridors[d])
+            continue;
+        rm->corridors[d] = map_add_corridor(rm, d);
     }
+
+    roomcount++;
+    return rm;
 }
 
 SDL_Rect
@@ -285,20 +323,20 @@ map_find_room(Exit *e) {
     r.h = ROOM_SIZE();
 
     if (e->direction == NORTH) {
-        r.x = e->point.x - rand() % r.w;
-        r.y = e->point.y - r.h;
+        r.x = e->x - rand() % r.w;
+        r.y = e->y - r.h;
     }
     else if (e->direction == SOUTH) {
-        r.x = e->point.x - rand() % r.w;
-        r.y = e->point.y + 1;
+        r.x = e->x - rand() % r.w;
+        r.y = e->y + 1;
     }
     else if (e->direction == EAST) {
-        r.x = e->point.x + 1;
-        r.y = e->point.y - rand() % r.h;
+        r.x = e->x + 1;
+        r.y = e->y - rand() % r.h;
     }
     else { /* WEST */
-        r.x = e->point.x - r.w;
-        r.y = e->point.y - rand() % r.h;
+        r.x = e->x - r.w;
+        r.y = e->y - rand() % r.h;
     }
 
     return r;
@@ -317,13 +355,11 @@ map_make(void) {
         }
     }
 
-    map_making_counter = 0;
-
     r.x = 20;
     r.y = 20;
     r.w = rand() % 5 + 2;
     r.h = rand() % 5 + 2;
-    map_add_room(r);
+    rootroom = map_add_room(r, NULL, LAST_DIRECTION);
 }
 
 static void
@@ -357,7 +393,7 @@ map_move(SDLKey key) {
 }
 
 static int
-map_validate_room(SDL_Rect *r) {
+map_validate_rect(SDL_Rect *r) {
     int x, y;
 
     if (r->x < 1 || r->y < 1)
@@ -373,6 +409,19 @@ map_validate_room(SDL_Rect *r) {
                 return 0;
 
     return 1;
+}
+
+static Direction
+opp_direction(Direction d) {
+    switch(d) {
+        case NORTH:
+            return SOUTH;
+        case SOUTH:
+            return NORTH;
+        case EAST:
+            return WEST;
+    }
+    return EAST;
 }
 
 static void
