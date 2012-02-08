@@ -3,8 +3,8 @@
 #include <SDL/SDL_ttf.h>
 #include <time.h>
 
-#define SCREEN_WIDTH    1920
-#define SCREEN_HEIGHT   1080
+#define SCREEN_WIDTH    1280
+#define SCREEN_HEIGHT   1024
 #define SCREEN_BPP      32
 #define SURF_TYPE       SDL_HWSURFACE
 #define FRAMERATE       24
@@ -15,7 +15,8 @@
 
 #define SIDEBAR_WIDTH   200
 
-#define ROOM_ATTEMPTS   200
+#define ROOM_ATTEMPTS   500
+#define ROOM_BRANCH_ATTEMPTS     50
 
 typedef enum {
     NOTHING = 0,
@@ -57,15 +58,20 @@ typedef struct {
     int y;
 } Point;
 
+typedef struct {
+    Point point;
+    Direction direction;
+} Exit;
+
 static void complete_redraw(void);
 static void handle_keypress(SDL_KeyboardEvent *key);
 static void init(void);
 static SDL_Surface* load_image(char *filename);
-static void map_add_rect(SDL_Rect *r);
-static SDL_Rect map_get_corridor(SDL_Rect *start);
-static SDL_Rect map_get_room(SDL_Rect *start);
-static int map_rect_fits(SDL_Rect *r);
+static void map_add_corridor(SDL_Rect r);
+static void map_add_room(SDL_Rect r);
+static SDL_Rect map_find_room(Exit *e);
 static void map_make(void);
+static int map_validate_room(SDL_Rect *r);
 static void run(void);
 static void sidebar_blit(void);
 static void sidebar_build(void);
@@ -82,6 +88,7 @@ static SDL_Surface *tileimg[LAST_TILE];
 static Uint32 base_frame_delay;
 static int RUNNING;
 static SDL_Event event;
+static map_making_counter;
 
 static void
 complete_redraw(void) {
@@ -152,91 +159,94 @@ load_image(char *filename) {
 }
 
 static void
-map_add_rect(SDL_Rect *r) {
+map_add_corridor(SDL_Rect r) {
+    SDL_Rect corridor;
+    SDL_Rect room;
+    Exit e;
+    int i;
     int x, y;
 
-    /* /Make the floor tiles */
-    for (y = 0; y < r->h; ++y) {
-        for (x = 0; x < r->w; ++x) {
-            tiles[x + r->x][y + r->y].base = FLOOR;
-        }
-    }
+    /* Assume East for now */
+    /* e.direction = rand() % LAST_DIRECTION; */
+    e.direction = EAST;
+    corridor.x = r.x + r.w;
+    corridor.w = rand() % 10;
+    corridor.y = r.y + rand() % r.h;
+    corridor.h = 1;
+    e.point.x = corridor.x + corridor.w;
+    e.point.y = corridor.y;
+
+    /* If our attempted corridor doesn't fit */
+    if (!map_validate_room(&corridor))
+        return;
+
+    /* See if this corridor leads anywhere */
+    do {
+        room = map_find_room(&e);
+    } while (++map_making_counter < ROOM_ATTEMPTS && !map_validate_room(&room));
+
+    if (map_making_counter >= ROOM_ATTEMPTS)
+        return;
+
+    /* Draw the corridor and add the room */
+    for (y = corridor.y; y < corridor.y + corridor.h; ++y)
+        for (x = corridor.x; x < corridor.x + corridor.w; ++x)
+            tiles[x][y].base = FLOOR;
+    map_add_room(room);
+    tiles[e.point.x][e.point.y].base = LAVA;
+
+    /* A small chance of a fork */
+    if (rand() % 10 == 0)
+        map_add_corridor(r);
+}
+
+static void
+map_add_room(SDL_Rect r) {
+    int x, y;
+    SDL_Rect c;
+
+    for (y = r.y; y < r.y + r.h; ++y)
+        for (x = r.x; x < r.x + r.w; ++x)
+            tiles[x][y].base = FLOOR;
+
+    do {
+        map_add_corridor(r);
+    } while (map_making_counter++ < ROOM_ATTEMPTS);
+
+    /* A few more attempts randomly to branch */
+    /* So that every room can fill free space if there is plenty */
+    for (x = 0; x < ROOM_BRANCH_ATTEMPTS; ++x)
+        map_add_corridor(r);
 }
 
 static SDL_Rect
-map_get_corridor(SDL_Rect *start) {
+map_find_room(Exit *e) {
     SDL_Rect r;
-    Direction d;
 
-    d = rand() % LAST_DIRECTION;
+    r.w = rand() % 10 + 2;
+    r.h = rand() % 10 + 2;
 
-    /* We assume straight and east for now */
+    if (e->direction == NORTH) {
 
-    /* if (d == NORTH) { */
-        r.h = rand() % 10 + 2;
-        r.y = start->y - r.h;
-        r.x = start->x + rand() % start->w;
-        r.w = 1;
-    /* } */
-    /* else { */
-    /*     r.x = start->x + start->w; */
-    /*     r.y = start->y + rand() % start->h; */
-    /*     r.w = rand() % 10 + 2; */
-    /*     r.h = 1; */
-    /* } */
+    }
+    else if (e->direction == SOUTH) {
+
+    }
+    else if (e->direction == EAST) {
+        r.x = e->point.x + 1;
+        r.y = e->point.y;
+    }
+    else { /* WEST */
+
+    }
 
     return r;
 }
 
-static SDL_Rect
-map_get_room(SDL_Rect *start) {
-    SDL_Rect r;
-    Direction d;
-
-    d = rand() % LAST_DIRECTION;
-
-    /* We assume directly to the east for now */
-    r.x = start->x + start->w;
-    r.w = rand() % 5 + 4;
-    r.h = rand() % 5 + 4;
-    r.y = start->y - rand() % r.h;
-
-    return r;
-}
-
-static int
-map_rect_fits(SDL_Rect *r) {
-    int x, y;
-    int neighbour_count = 0;
-
-    /* Make sure we're within the map's limits */
-    if (r->x + r->w >= TILES_WIDE - 1)
-        return 0;
-    if (r->y + r->h >= TILES_HIGH - 1)
-        return 0;
-    if (r->x <= 0 || r->y <= 0)
-        return 0;
-
-    /* Make sure we're not covering any already-claimed floor */
-    for (y = -1; y <= r->h; ++y) {
-        for (x = -1; x <= r->w; ++x) {
-            if (tiles[x + r->x][y + r->y].base == FLOOR) {
-                if (++neighbour_count == 3 )
-                    return 0;
-            }
-        }
-    }
-
-    return 1;
-}
-
-/* This really needs to be re-arranged to work recursively */
 static void
 map_make(void) {
     int x, y;
-    int attempts;
     SDL_Rect r;
-    SDL_Rect c;
 
     /* Set them all to nothing initially */
     for (y = 0; y < TILES_HIGH; ++y) {
@@ -245,46 +255,32 @@ map_make(void) {
         }
     }
 
-    /* Get an initial first room */
-    attempts = 0;
-    do {
-        /* r.x = rand() % TILES_WIDE; */
-        /* r.y = rand() % TILES_HIGH; */
-        r.x = 20; /* Temporary */
-        r.y = 20; /* Temporary */
-        r.w = rand() % 5 + 4;
-        r.h = rand() % 5 + 4;
-        ++attempts;
-    } while (! map_rect_fits(&r) && attempts < ROOM_ATTEMPTS);
-    map_add_rect(&r);
+    map_making_counter = 0;
 
-    if (attempts == ROOM_ATTEMPTS) {
-        fputs("Error trying to place first room!", stderr);
-        exit(1);
-    }
+    r.x = 5;
+    r.y = 5;
+    r.w = rand() % 10 + 2;
+    r.h = rand() % 10 + 2;
+    map_add_room(r);
+}
 
-    /* Add corridors and rooms in sequence */
-    while(attempts < ROOM_ATTEMPTS) {
-        /* Add a corridor based upon last room */
-        do {
-            puts("Ding!");
-            c = map_get_corridor(&r);
-            ++attempts;
-        } while ( !map_rect_fits(&c) && attempts < ROOM_ATTEMPTS );
+static int
+map_validate_room(SDL_Rect *r) {
+    int x, y;
 
-        /* Add a room based upon the last corridor */
-        do {
-            puts("Dong!");
-            r = map_get_room(&c);
-            ++attempts;
-        } while ( !map_rect_fits(&r) && attempts < ROOM_ATTEMPTS );
+    if (r->x < 1 || r->y < 1)
+        return 0;
+    if (r->x + r->w >= TILES_WIDE)
+        return 0;
+    if (r->y + r->h >= TILES_HIGH)
+        return 0;
 
-        if (attempts >= ROOM_ATTEMPTS)
-            break;
+    for (y = r->y; y < r->y + r->h; ++y)
+        for (x = r->x; x < r->x + r->w; ++x)
+            if (tiles[x][y].base != NOTHING)
+                return 0;
 
-        map_add_rect(&c);
-        map_add_rect(&r);
-    }
+    return 1;
 }
 
 static void
