@@ -72,14 +72,12 @@ typedef struct {
 typedef struct Room Room;
 typedef struct {
     SDL_Rect area;
-    int visible;
     Exit e1, e2;
     Room *r1, *r2;
 } Corridor;
 
 struct Room {
     SDL_Rect area;
-    int visible;
     Corridor *corridors[LAST_DIRECTION];
 };
 
@@ -87,6 +85,7 @@ static void camera_clip(void);
 static void camera_move(SDLKey key);
 static void camera_centre_on(SDL_Rect *r);
 static void complete_redraw(void);
+static void do_move(Direction d);
 static void handle_keypress(SDL_KeyboardEvent *key);
 static void init(void);
 static SDL_Surface* load_image(char *filename);
@@ -132,7 +131,7 @@ camera_centre_on(SDL_Rect *r) {
 
     printf("Centred to\t\t%d x %d\n", tileview.clip.x, tileview.clip.y);
 
-    /* camera_clip(); */
+    camera_clip();
     tileview_blit();
 }
 
@@ -177,6 +176,22 @@ complete_redraw(void) {
 }
 
 static void
+do_move(Direction d) {
+    if (!currroom->corridors[d])
+        return;
+
+    map_show_rect(&currroom->corridors[d]->area);
+
+    if(currroom->corridors[d]->r1 != currroom)
+        currroom = currroom->corridors[d]->r1;
+    else 
+        currroom = currroom->corridors[d]->r2;
+
+    map_show_rect(&currroom->area);
+    camera_centre_on(&currroom->area);
+}
+
+static void
 handle_keypress(SDL_KeyboardEvent *key) {
     switch(key->keysym.sym) {
         case SDLK_ESCAPE:
@@ -187,6 +202,18 @@ handle_keypress(SDL_KeyboardEvent *key) {
         case SDLK_LEFT:
         case SDLK_RIGHT:
             camera_move(key->keysym.sym);
+            break;
+        case SDLK_w:
+            do_move(NORTH);
+            break;
+        case SDLK_s:
+            do_move(SOUTH);
+            break;
+        case SDLK_a:
+            do_move(WEST);
+            break;
+        case SDLK_d:
+            do_move(EAST);
             break;
         default:
             break;
@@ -315,11 +342,10 @@ map_add_corridor(Room *r, Direction d) {
     }
 
     /* Draw the corridor and add the room */
-    /* This needs to be removed when we have a proper draw_rect function */
     for (y = c->area.y; y < c->area.y + c->area.h; ++y)
         for (x = c->area.x; x < c->area.x + c->area.w; ++x)
             tiles[x][y].base = FLOOR;
-    c->r1 = map_add_room(room, c, c->e1.direction);
+    c->r1 = map_add_room(room, c, opp_direction(c->e1.direction));
     /* draw doors */
     tiles[c->e1.x][c->e1.y].base = DOOR;
     tiles[c->e2.x][c->e2.y].base = DOOR;
@@ -340,7 +366,6 @@ map_add_room(SDL_Rect r, Corridor *c, Direction entered_from) {
     }
 
     rm->area = r;
-    rm->visible = 0;
     rm->corridors[NORTH] = NULL;
     rm->corridors[SOUTH] = NULL;
     rm->corridors[EAST] = NULL;
@@ -355,9 +380,8 @@ map_add_room(SDL_Rect r, Corridor *c, Direction entered_from) {
             tiles[x][y].base = FLOOR;
 
     for (d = 0; d < LAST_DIRECTION; ++d) {
-        if (rm->corridors[d])
-            continue;
-        rm->corridors[d] = map_add_corridor(rm, opp_direction(d));
+        if (!rm->corridors[d])
+            rm->corridors[d] = map_add_corridor(rm, d);
     }
 
     return rm;
@@ -400,6 +424,7 @@ map_make(void) {
     for (y = 0; y < TILES_HIGH; ++y) {
         for (x = 0; x < TILES_WIDE; ++x) {
             tiles[x][y].base = WALL;
+            tiles[x][y].visible = 0;
         }
     }
 
@@ -422,7 +447,10 @@ map_show_rect(SDL_Rect *r) {
 
     for (y = r->y - 1; y <= r->y + r->h; ++y) {
         for (x = r->x - 1; x <= r->x + r->w; ++x) {
-            /* TODO: Add tiles remembering if they've been drawn already */
+            if (tiles[x][y].visible)
+                continue;
+
+            tiles[x][y].visible = 1;    
             pos.x = x * TILE_SIZE;
             pos.y = y * TILE_SIZE;
             SDL_BlitSurface(tileimg[tiles[x][y].base], NULL, tileview.floorarea, &pos);
