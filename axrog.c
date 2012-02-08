@@ -168,13 +168,32 @@ map_add_corridor(SDL_Rect r) {
 
     /* Assume East for now */
     /* e.direction = rand() % LAST_DIRECTION; */
-    e.direction = EAST;
-    corridor.x = r.x + r.w;
-    corridor.w = rand() % 10;
-    corridor.y = r.y + rand() % r.h;
-    corridor.h = 1;
-    e.point.x = corridor.x + corridor.w;
-    e.point.y = corridor.y;
+    e.direction = SOUTH;
+
+    if (e.direction == NORTH) {
+        corridor.x = r.x + rand() % r.w;
+        corridor.h = rand() % 5 + 1;
+        corridor.y = r.y - corridor.h;
+        corridor.w = 1;
+        e.point.x = corridor.x;
+        e.point.y = corridor.y;
+    }
+    else if (e.direction == SOUTH) {
+        corridor.x = r.x + rand() % r.w;
+        corridor.h = rand() % 5 + 1;
+        corridor.y = r.y + r.h;
+        corridor.w = 1;
+        e.point.x = corridor.x;
+        e.point.y = corridor.y + corridor.h;
+    }
+    else if (e.direction == EAST) {
+        corridor.x = r.x + r.w;
+        corridor.w = rand() % 5 + 1;
+        corridor.y = r.y + rand() % r.h;
+        corridor.h = 1;
+        e.point.x = corridor.x + corridor.w;
+        e.point.y = corridor.y;
+    }
 
     /* If our attempted corridor doesn't fit */
     if (!map_validate_room(&corridor))
@@ -196,8 +215,8 @@ map_add_corridor(SDL_Rect r) {
     tiles[e.point.x][e.point.y].base = LAVA;
 
     /* A small chance of a fork */
-    if (rand() % 10 == 0)
-        map_add_corridor(r);
+    /* if (rand() % 10 == 0) */
+    /*     map_add_corridor(r); */
 }
 
 static void
@@ -227,14 +246,16 @@ map_find_room(Exit *e) {
     r.h = rand() % 10 + 2;
 
     if (e->direction == NORTH) {
-
+        r.x = e->point.x - rand() % r.w;
+        r.y = e->point.y - r.h;
     }
     else if (e->direction == SOUTH) {
-
+        r.x = e->point.x - rand() % r.w;
+        r.y = e->point.y + 1;
     }
     else if (e->direction == EAST) {
         r.x = e->point.x + 1;
-        r.y = e->point.y;
+        r.y = e->point.y - rand() % r.h;
     }
     else { /* WEST */
 
