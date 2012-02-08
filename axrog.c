@@ -129,8 +129,6 @@ camera_centre_on(SDL_Rect *r) {
     tileview.clip.x = r_centre.x;
     tileview.clip.y = r_centre.y;
 
-    printf("Centred to\t\t%d x %d\n", tileview.clip.x, tileview.clip.y);
-
     camera_clip();
     tileview_blit();
 }
