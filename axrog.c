@@ -3,6 +3,9 @@
 #include <SDL/SDL_ttf.h>
 #include <time.h>
 
+#define MIN(x, y)       ((x) < (y) ? (x) : (y))
+#define MAX(x, y)       ((x) > (y) ? (x) : (y))
+
 #define SCREEN_WIDTH    1920
 #define SCREEN_HEIGHT   1080
 #define SCREEN_BPP      32
@@ -13,10 +16,12 @@
 #define TILES_WIDE      100
 #define TILES_HIGH      100
 
-#define SIDEBAR_WIDTH   200
+#define SIDEBAR_WIDTH   0
 
-#define ROOM_ATTEMPTS   5000
-#define ROOM_BRANCH_ATTEMPTS     50
+#define ROOM_ATTEMPTS   500
+#define ROOM_BRANCH_ATTEMPTS     500
+#define ROOM_SIZE()       (rand() % 7 + 4)
+#define CORRIDOR_LENGTH() (rand() % 5 + 2)
 
 typedef enum {
     NOTHING = 0,
@@ -69,14 +74,16 @@ static void init(void);
 static SDL_Surface* load_image(char *filename);
 static void map_add_corridor(SDL_Rect r);
 static void map_add_room(SDL_Rect r);
-static SDL_Rect map_find_room(Exit *e);
+SDL_Rect map_find_room(Exit *e);
 static void map_make(void);
 static int map_validate_room(SDL_Rect *r);
+static void map_wrap_with_walls(void);
 static void run(void);
 static void sidebar_blit(void);
 static void sidebar_build(void);
 static void tileview_blit(void);
 static void tileview_build(void);
+static int tile_next_to_object(int x, int y);
 
 static SDL_Surface *screen;
 static TileView tileview;
@@ -131,6 +138,8 @@ init(void) {
     tileimg[FLOOR] = load_image("res/tiles/floor.png");
     tileimg[WALL] = load_image("res/tiles/wall.png");
     tileimg[LAVA] = load_image("res/tiles/lava.png");
+    tileimg[CLOSED_DOOR] = load_image("res/tiles/closed_door.png");
+    tileimg[OPEN_DOOR] = load_image("res/tiles/open_door.png");
 
     sidebar_build();
     tileview_build();
@@ -171,7 +180,7 @@ map_add_corridor(SDL_Rect r) {
     e.direction = rand() % LAST_DIRECTION;
     if (e.direction == NORTH) {
         corridor.x = r.x + rand() % r.w;
-        corridor.h = rand() % 5 + 1;
+        corridor.h = CORRIDOR_LENGTH();
         corridor.y = r.y - corridor.h - 1;
         corridor.w = 1;
         e.point.x = corridor.x;
@@ -181,7 +190,7 @@ map_add_corridor(SDL_Rect r) {
     }
     else if (e.direction == SOUTH) {
         corridor.x = r.x + rand() % r.w;
-        corridor.h = rand() % 5 + 1;
+        corridor.h = CORRIDOR_LENGTH();
         corridor.y = r.y + r.h + 1;
         corridor.w = 1;
         e.point.x = corridor.x;
@@ -191,7 +200,7 @@ map_add_corridor(SDL_Rect r) {
     }
     else if (e.direction == EAST) {
         corridor.x = r.x + r.w + 1;
-        corridor.w = rand() % 5 + 1;
+        corridor.w = CORRIDOR_LENGTH();
         corridor.y = r.y + rand() % r.h;
         corridor.h = 1;
         e.point.x = corridor.x + corridor.w;
@@ -200,7 +209,7 @@ map_add_corridor(SDL_Rect r) {
         doorin.y = corridor.y;
     }
     else { /* WEST */
-        corridor.w = rand() % 5 + 1;
+        corridor.w = CORRIDOR_LENGTH();
         corridor.x = r.x - corridor.w - 1;
         corridor.y = r.y + rand() % r.h;
         corridor.h = 1;
@@ -219,7 +228,7 @@ map_add_corridor(SDL_Rect r) {
         room = map_find_room(&e);
     } while (++map_making_counter < ROOM_ATTEMPTS && !map_validate_room(&room));
 
-    if (map_making_counter >= ROOM_ATTEMPTS)
+    if (!map_validate_room(&room))
         return;
 
     /* Draw the corridor and add the room */
@@ -228,39 +237,31 @@ map_add_corridor(SDL_Rect r) {
             tiles[x][y].base = FLOOR;
     map_add_room(room);
     /* draw doors */
-    tiles[e.point.x][e.point.y].base = LAVA;
-    tiles[doorin.x][doorin.y].base = LAVA;
-
-    /* A small chance of a fork */
-    /* if (rand() % 10 == 0) */
-        /* map_add_corridor(corridor); */
+    tiles[e.point.x][e.point.y].base = OPEN_DOOR;
+    tiles[doorin.x][doorin.y].base = OPEN_DOOR;
 }
 
 static void
 map_add_room(SDL_Rect r) {
     int x, y;
     SDL_Rect c;
+    int i;
 
     for (y = r.y; y < r.y + r.h; ++y)
         for (x = r.x; x < r.x + r.w; ++x)
             tiles[x][y].base = FLOOR;
 
-    do {
+    for (i = 0; i < ROOM_BRANCH_ATTEMPTS; ++i) {
         map_add_corridor(r);
-    } while (map_making_counter++ < ROOM_ATTEMPTS);
-
-    /* A few more attempts randomly to branch */
-    /* So that every room can fill free space if there is plenty */
-    /* for (x = 0; x < ROOM_BRANCH_ATTEMPTS; ++x) */
-        /* map_add_corridor(r); */
+    }
 }
 
-static SDL_Rect
+SDL_Rect
 map_find_room(Exit *e) {
     SDL_Rect r;
 
-    r.w = rand() % 10 + 2;
-    r.h = rand() % 10 + 2;
+    r.w = ROOM_SIZE();
+    r.h = ROOM_SIZE();
 
     if (e->direction == NORTH) {
         r.x = e->point.x - rand() % r.w;
@@ -285,6 +286,7 @@ map_find_room(Exit *e) {
 static void
 map_make(void) {
     int x, y;
+    int x1, y1;
     SDL_Rect r;
 
     /* Set them all to nothing initially */
@@ -298,8 +300,8 @@ map_make(void) {
 
     r.x = 20;
     r.y = 20;
-    r.w = rand() % 10 + 2;
-    r.h = rand() % 10 + 2;
+    r.w = rand() % 5 + 2;
+    r.h = rand() % 5 + 2;
     map_add_room(r);
 }
 
