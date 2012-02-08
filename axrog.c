@@ -9,8 +9,10 @@
 #define SCREEN_WIDTH    1920
 #define SCREEN_HEIGHT   1080
 #define SCREEN_BPP      32
-#define SURF_TYPE       SDL_HWSURFACE
+#define SURF_TYPE       SDL_SWSURFACE
 #define FRAMERATE       24
+
+#define CAMSPEED        100
 
 #define TILE_SIZE       32
 #define TILES_WIDE      100
@@ -24,13 +26,11 @@
 #define CORRIDOR_LENGTH() (rand() % 5 + 2)
 
 typedef enum {
-    NOTHING = 0,
-    FLOOR = 1,
-    WALL = 2,
-    LAVA = 3,
-    CLOSED_DOOR = 4,
-    OPEN_DOOR = 5,
-    LAST_TILE = 6
+    FLOOR = 0,
+    WALL = 1,
+    DOOR = 2,
+    LAST_TILE = 3,
+    NOTHING = 255,
 } TileBase;
 
 typedef enum {
@@ -68,6 +68,23 @@ typedef struct {
     Direction direction;
 } Exit;
 
+typedef struct Room Room;
+typedef struct {
+    SDL_Rect area;
+    int visible;
+    Exit e1, e2;
+    Room *r1, *r2;
+} Corridor;
+
+struct Room {
+    SDL_Rect area;
+    int visible;
+    Corridor *n;
+    Corridor *s;
+    Corridor *e;
+    Corridor *w;
+};
+
 static void complete_redraw(void);
 static void handle_keypress(SDL_KeyboardEvent *key);
 static void init(void);
@@ -76,6 +93,7 @@ static void map_add_corridor(SDL_Rect r);
 static void map_add_room(SDL_Rect r);
 SDL_Rect map_find_room(Exit *e);
 static void map_make(void);
+static void map_move(SDLKey key);
 static int map_validate_room(SDL_Rect *r);
 static void map_wrap_with_walls(void);
 static void run(void);
@@ -109,6 +127,12 @@ handle_keypress(SDL_KeyboardEvent *key) {
         case SDLK_ESCAPE:
             RUNNING = 0;
             break;
+        case SDLK_UP:
+        case SDLK_DOWN:
+        case SDLK_LEFT:
+        case SDLK_RIGHT:
+            map_move(key->keysym.sym);
+            break;
         default:
             break;
     }
@@ -119,7 +143,7 @@ init(void) {
     srand(time(NULL));
 
     SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_EnableKeyRepeat(1000, 100);
+    /* SDL_EnableKeyRepeat(300, 50); */
     screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP,
         SURF_TYPE);
     if (!screen) {
@@ -134,12 +158,9 @@ init(void) {
         exit(1);
     }
 
-    tileimg[NOTHING] = load_image("res/tiles/nothing.png");
     tileimg[FLOOR] = load_image("res/tiles/floor.png");
     tileimg[WALL] = load_image("res/tiles/wall.png");
-    tileimg[LAVA] = load_image("res/tiles/lava.png");
-    tileimg[CLOSED_DOOR] = load_image("res/tiles/closed_door.png");
-    tileimg[OPEN_DOOR] = load_image("res/tiles/open_door.png");
+    tileimg[DOOR] = load_image("res/tiles/door.png");
 
     sidebar_build();
     tileview_build();
@@ -237,8 +258,8 @@ map_add_corridor(SDL_Rect r) {
             tiles[x][y].base = FLOOR;
     map_add_room(room);
     /* draw doors */
-    tiles[e.point.x][e.point.y].base = OPEN_DOOR;
-    tiles[doorin.x][doorin.y].base = OPEN_DOOR;
+    tiles[e.point.x][e.point.y].base = DOOR;
+    tiles[doorin.x][doorin.y].base = DOOR;
 }
 
 static void
@@ -292,7 +313,7 @@ map_make(void) {
     /* Set them all to nothing initially */
     for (y = 0; y < TILES_HIGH; ++y) {
         for (x = 0; x < TILES_WIDE; ++x) {
-            tiles[x][y].base = NOTHING;
+            tiles[x][y].base = WALL;
         }
     }
 
@@ -303,6 +324,36 @@ map_make(void) {
     r.w = rand() % 5 + 2;
     r.h = rand() % 5 + 2;
     map_add_room(r);
+}
+
+static void
+map_move(SDLKey key) {
+    switch(key) {
+        case SDLK_UP:
+            tileview.clip.y -= CAMSPEED;
+            break;
+        case SDLK_DOWN:
+            tileview.clip.y += CAMSPEED;
+            break;
+        case SDLK_LEFT:
+            tileview.clip.x -= CAMSPEED;
+            break;
+        case SDLK_RIGHT:
+            tileview.clip.x += CAMSPEED;
+            break;
+    }
+    
+    /* Clipping */
+    if (tileview.clip.x < 0)
+        tileview.clip.x = 0;
+    else if (tileview.clip.x + tileview.clip.w > tileview.floorarea->w)
+        tileview.clip.x = tileview.floorarea->w - tileview.clip.w;
+    if (tileview.clip.y < 0)
+        tileview.clip.y = 0;
+    else if (tileview.clip.y + tileview.clip.h > tileview.floorarea->h)
+        tileview.clip.y = tileview.floorarea->h - tileview.clip.h;
+
+    tileview_blit();
 }
 
 static int
@@ -318,7 +369,7 @@ map_validate_room(SDL_Rect *r) {
 
     for (y = r->y - 1; y <= r->y + r->h; ++y)
         for (x = r->x - 1; x <= r->x + r->w; ++x)
-            if (tiles[x][y].base != NOTHING)
+            if (tiles[x][y].base != WALL)
                 return 0;
 
     return 1;
@@ -346,7 +397,8 @@ run(void) {
     }
 
     end = SDL_GetTicks();
-    SDL_Delay(base_frame_delay + start - end);
+    if (end - start < base_frame_delay)
+        SDL_Delay(base_frame_delay + start - end);
 }
 
 static void
@@ -380,6 +432,7 @@ sidebar_build(void) {
 
 static void
 tileview_blit(void) {
+    SDL_FillRect(screen, &tileview.offset, 0);
     SDL_BlitSurface(tileview.floorarea, &tileview.clip, screen, &tileview.offset);
 }
 
