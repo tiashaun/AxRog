@@ -149,16 +149,16 @@ camera_clip(void) {
 static void
 camera_move(SDLKey key) {
     switch(key) {
-        case SDLK_UP:
+        case SDLK_w:
             tileview.clip.y -= CAMSPEED;
             break;
-        case SDLK_DOWN:
+        case SDLK_s:
             tileview.clip.y += CAMSPEED;
             break;
-        case SDLK_LEFT:
+        case SDLK_a:
             tileview.clip.x -= CAMSPEED;
             break;
-        case SDLK_RIGHT:
+        case SDLK_d:
             tileview.clip.x += CAMSPEED;
             break;
     }
@@ -195,22 +195,22 @@ handle_keypress(SDL_KeyboardEvent *key) {
         case SDLK_ESCAPE:
             RUNNING = 0;
             break;
-        case SDLK_UP:
-        case SDLK_DOWN:
-        case SDLK_LEFT:
-        case SDLK_RIGHT:
+        case SDLK_w:
+        case SDLK_a:
+        case SDLK_s:
+        case SDLK_d:
             camera_move(key->keysym.sym);
             break;
-        case SDLK_w:
+        case SDLK_UP:
             do_move(NORTH);
             break;
-        case SDLK_s:
+        case SDLK_DOWN:
             do_move(SOUTH);
             break;
-        case SDLK_a:
+        case SDLK_LEFT:
             do_move(WEST);
             break;
-        case SDLK_d:
+        case SDLK_RIGHT:
             do_move(EAST);
             break;
         default:
