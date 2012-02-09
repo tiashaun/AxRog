@@ -1,12 +1,7 @@
-OBJECTS = axrog.o
-
-all: axrog
-	$(CC) $(LFLAGS) $(OBJECTS) -o $@ -lSDL -lSDL_ttf -lSDL_image -ggdb -Wall -lm
-
-axrog: axrog.o
-	$(CC) $(LFLAGS) $(OBJECTS) -o $@ -lSDL -lSDL_ttf -lSDL_image -ggdb -Wall -lm
+axrog: axrog.c
+	$(CC) -o $@ axrog.c $(LFLAGS) -lSDL -lSDL_ttf -lSDL_image -ggdb 
 
 clean:
 	-rm -f $(OBJECTS) axrog
 
-.PHONY: all clean
+.PHONY: clean

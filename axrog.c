@@ -20,10 +20,10 @@
 
 #define SIDEBAR_WIDTH   0
 
-#define ROOM_ATTEMPTS           10
-#define ROOM_BRANCH_ATTEMPTS    10
-#define ROOM_SIZE()       (rand() % 7 + 4)
-#define CORRIDOR_LENGTH() (rand() % 5 + 2)
+#define ROOM_ATTEMPTS           200
+#define ROOM_BRANCH_ATTEMPTS    200
+#define ROOM_SIZE()       (rand() % 4 + 4)
+#define CORRIDOR_LENGTH() (rand() % 4 + 2)
 
 typedef enum {
     FLOOR = 0,
@@ -354,6 +354,7 @@ map_add_corridor(Room *r, Direction d) {
 static Room*
 map_add_room(SDL_Rect r, Corridor *c, Direction entered_from) {
     int x, y;
+    int i, e;
     Direction d;
     Room *rm;
     
@@ -377,9 +378,11 @@ map_add_room(SDL_Rect r, Corridor *c, Direction entered_from) {
         for (x = r.x; x < r.x + r.w; ++x)
             tiles[x][y].base = FLOOR;
 
-    for (d = 0; d < LAST_DIRECTION; ++d) {
-        if (!rm->corridors[d])
-            rm->corridors[d] = map_add_corridor(rm, d);
+    for (i = 0; i < ROOM_BRANCH_ATTEMPTS; ++i) {
+        d = rand() % LAST_DIRECTION;
+        if (rm->corridors[d])
+            continue;
+        rm->corridors[d] = map_add_corridor(rm, d);
     }
 
     return rm;
