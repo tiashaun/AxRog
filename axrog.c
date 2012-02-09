@@ -23,8 +23,9 @@
 
 #define ROOM_ATTEMPTS           200
 #define ROOM_BRANCH_ATTEMPTS    200
-#define ROOM_SIZE()       (rand() % 4 + 4)
-#define CORRIDOR_LENGTH() (rand() % 4 + 2)
+#define ROOM_SPACING            3 
+#define ROOM_SIZE()       (rand() % 4 + 5)
+#define CORRIDOR_LENGTH() (rand() % 4 + 3)
 
 typedef enum {
     FLOOR = 0,
@@ -98,7 +99,7 @@ static Room* map_add_room(SDL_Rect r, Corridor *c, Direction entered_from);
 SDL_Rect map_find_room(Exit *e);
 static void map_make(void);
 static void map_show_rect(SDL_Rect *r);
-static int map_validate_rect(SDL_Rect *r);
+static int map_validate_rect(SDL_Rect *r, int spacing);
 static Direction opp_direction(Direction d);
 static void run(void);
 static void SIG_term(int signal);
@@ -382,7 +383,7 @@ map_add_corridor(Room *r, Direction d) {
     }
 
     /* If our attempted corridor doesn't fit */
-    if (!map_validate_rect(&c->area)) {
+    if (!map_validate_rect(&c->area, 1)) {
         free(c);
         return NULL;
     }
@@ -390,9 +391,9 @@ map_add_corridor(Room *r, Direction d) {
     /* See if this corridor leads anywhere */
     do {
         room = map_find_room(&c->e1);
-    } while (++i < ROOM_ATTEMPTS && !map_validate_rect(&room));
+    } while (++i < ROOM_ATTEMPTS && !map_validate_rect(&room, ROOM_SPACING));
 
-    if (!map_validate_rect(&room)) {
+    if (!map_validate_rect(&room, ROOM_SPACING)) {
         free(c);
         return NULL;
     }
@@ -492,7 +493,7 @@ map_make(void) {
         r.y = rand() % TILES_HIGH;
         r.w = ROOM_SIZE();
         r.h = ROOM_SIZE();
-    } while ( !map_validate_rect(&r) );
+    } while ( !map_validate_rect(&r, ROOM_SPACING) );
     currroom = rootroom = map_add_room(r, NULL, LAST_DIRECTION);
 
     map_show_rect(&currroom->area);
@@ -519,7 +520,7 @@ map_show_rect(SDL_Rect *r) {
 }
 
 static int
-map_validate_rect(SDL_Rect *r) {
+map_validate_rect(SDL_Rect *r, int spacing) {
     int x, y;
 
     if (r->x < 1 || r->y < 1)
@@ -529,8 +530,8 @@ map_validate_rect(SDL_Rect *r) {
     if (r->y + r->h >= TILES_HIGH)
         return 0;
 
-    for (y = r->y - 1; y <= r->y + r->h; ++y)
-        for (x = r->x - 1; x <= r->x + r->w; ++x)
+    for (y = MAX(r->y - spacing, 0); y < MIN(r->y + r->h + spacing, TILES_WIDE); ++y)
+        for (x = MAX(r->x - spacing, 0); x < MIN(r->x + r->w + spacing, TILES_WIDE); ++x)
             if (tiles[x][y].base != WALL)
                 return 0;
 
