@@ -1,6 +1,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
+#include <signal.h>
 #include <time.h>
 
 #define MIN(x, y)       ((x) < (y) ? (x) : (y))
@@ -84,8 +85,10 @@ struct Room {
 static void camera_clip(void);
 static void camera_move(SDLKey key);
 static void camera_centre_on(SDL_Rect *r);
+static void cleanup(void);
 static void complete_redraw(void);
 static void do_move(Direction d);
+static void graphics_init(void);
 static void handle_keypress(SDL_KeyboardEvent *key);
 static void init(void);
 static SDL_Surface* load_image(char *filename);
@@ -97,6 +100,7 @@ static void map_show_rect(SDL_Rect *r);
 static int map_validate_rect(SDL_Rect *r);
 static Direction opp_direction(Direction d);
 static void run(void);
+static void SIG_term(int signal);
 static void sidebar_blit(void);
 static void sidebar_build(void);
 static void tileview_blit(void);
@@ -168,6 +172,11 @@ camera_move(SDLKey key) {
 }
 
 static void
+cleanup(void) {
+
+}
+
+static void
 complete_redraw(void) {
     tileview_blit();
     sidebar_blit();
@@ -187,6 +196,35 @@ do_move(Direction d) {
 
     map_show_rect(&currroom->area);
     camera_centre_on(&currroom->area);
+}
+
+static void
+graphics_init(void) {
+    SDL_Init(SDL_INIT_EVERYTHING);
+    /* SDL_EnableKeyRepeat(300, 50); */
+    screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP,
+        SURF_TYPE);
+    if (!screen) {
+        fputs("Failed to initialise video!", stderr);
+        exit(1);
+    }
+
+    TTF_Init();
+    font = TTF_OpenFont("res/Font.ttf", 10);
+    if (!font) {
+        fputs("Failed to initialise font!", stderr);
+        exit(1);
+    }
+
+    tileimg[FLOOR] = load_image("res/tiles/floor.png");
+    tileimg[WALL] = load_image("res/tiles/wall.png");
+    tileimg[DOOR] = load_image("res/tiles/door.png");
+
+    sidebar_build();
+    tileview_build();
+
+    SDL_ShowCursor(0);
+    base_frame_delay = 1000 / FRAMERATE;
 }
 
 static void
@@ -222,31 +260,11 @@ static void
 init(void) {
     srand(time(NULL));
 
-    SDL_Init(SDL_INIT_EVERYTHING);
-    /* SDL_EnableKeyRepeat(300, 50); */
-    screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP,
-        SURF_TYPE);
-    if (!screen) {
-        fputs("Failed to initialise video!", stderr);
-        exit(1);
+    if (signal(SIGTERM, SIG_term) == SIG_ERR) {
+        fputs("An error occurred while setting a signal handler.\n", stderr);
+        return EXIT_FAILURE;
     }
 
-    TTF_Init();
-    font = TTF_OpenFont("res/Font.ttf", 10);
-    if (!font) {
-        fputs("Failed to initialise font!", stderr);
-        exit(1);
-    }
-
-    tileimg[FLOOR] = load_image("res/tiles/floor.png");
-    tileimg[WALL] = load_image("res/tiles/wall.png");
-    tileimg[DOOR] = load_image("res/tiles/door.png");
-
-    sidebar_build();
-    tileview_build();
-
-    SDL_ShowCursor(0);
-    base_frame_delay = 1000 / FRAMERATE;
     RUNNING = 1;
 }
 
@@ -548,6 +566,12 @@ sidebar_build(void) {
 }
 
 static void
+SIG_term(int signal) {
+    puts("Received SIGTERM. Attempting to exit cleanly.");
+    RUNNING = 0;
+}
+
+static void
 tileview_blit(void) {
     SDL_FillRect(screen, &tileview.offset, 0);
     SDL_BlitSurface(tileview.floorarea, &tileview.clip, screen, &tileview.offset);
@@ -581,6 +605,7 @@ tileview_build(void) {
 
 int main(int args, char argv) {
     init();
+    graphics_init();
     /* complete_redraw(); */
     while( RUNNING )
         run();
