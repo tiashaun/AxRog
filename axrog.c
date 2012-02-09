@@ -92,6 +92,7 @@ static void graphics_init(void);
 static void handle_keypress(SDL_KeyboardEvent *key);
 static void init(void);
 static SDL_Surface* load_image(char *filename);
+static void marker_blit(void);
 static Corridor* map_add_corridor(Room *r, Direction d);
 static Room* map_add_room(SDL_Rect r, Corridor *c, Direction entered_from);
 SDL_Rect map_find_room(Exit *e);
@@ -108,6 +109,7 @@ static void tileview_build(void);
 static int tile_next_to_object(int x, int y);
 
 static SDL_Surface *screen;
+static SDL_Surface *marker;
 static TileView tileview;
 static TTF_Font *font;
 static SDL_Rect sidebar_offest;
@@ -219,6 +221,7 @@ graphics_init(void) {
     tileimg[FLOOR] = load_image("res/tiles/floor.png");
     tileimg[WALL] = load_image("res/tiles/wall.png");
     tileimg[DOOR] = load_image("res/tiles/door.png");
+    marker = load_image("res/marker.png");
 
     sidebar_build();
     tileview_build();
@@ -262,7 +265,7 @@ init(void) {
 
     if (signal(SIGTERM, SIG_term) == SIG_ERR) {
         fputs("An error occurred while setting a signal handler.\n", stderr);
-        return EXIT_FAILURE;
+        exit(EXIT_FAILURE);
     }
 
     RUNNING = 1;
@@ -284,6 +287,43 @@ load_image(char *filename) {
     }
 
     return s2;
+}
+
+static void
+marker_blit(void) {
+    SDL_Rect r;
+    SDL_Rect clip;
+
+    r.x = currroom->area.x * TILE_SIZE - tileview.clip.x;
+    r.y = currroom->area.y * TILE_SIZE - tileview.clip.y;
+    r.x += (currroom->area.w * TILE_SIZE - marker->w) / 2;
+    r.y += (currroom->area.h * TILE_SIZE - marker->h) / 2;
+
+    if (r.x > tileview.clip.w || r.y > tileview.clip.h)
+        return;
+    if (r.x + r.w < 0 || r.y + r.h < 0)
+        return;
+
+    r.w = marker->w;
+    r.h = marker->w;
+    clip.w = (r.x + r.w > tileview.clip.w) ? tileview.clip.w - r.x : r.w;
+    clip.h = (r.y + r.h > tileview.clip.h) ? tileview.clip.h - r.y : r.h;
+
+    if (r.x < 0 && r.x + r.w > 0) {
+        clip.x = abs(r.x);
+        clip.w -= clip.x;
+    }
+    else
+        clip.x = 0;
+
+    if (r.y < 0 && r.y + r.h > 0) {
+        clip.y = abs(r.y);
+        clip.h -= clip.y;
+    }
+    else
+        clip.y = 0;
+
+    SDL_BlitSurface(marker, NULL, screen, &r);
 }
 
 static Corridor*
@@ -575,6 +615,7 @@ static void
 tileview_blit(void) {
     SDL_FillRect(screen, &tileview.offset, 0);
     SDL_BlitSurface(tileview.floorarea, &tileview.clip, screen, &tileview.offset);
+    marker_blit();
 }
 
 static void
