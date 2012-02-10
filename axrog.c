@@ -28,6 +28,18 @@
 #define CORRIDOR_LENGTH() (rand() % 4 + 3)
 
 typedef enum {
+    STATE_MOVEMENT,
+    STATE_SPLASH,
+    STATE_QUITTING
+} GameState;
+
+typedef enum {
+    CONT_STAIRS_UP = 0,
+    CONT_EMPTY = 1,
+    CONT_STAIRS_DOWN = 2 /* This must always be the last in the enum */
+} RoomContents;
+
+typedef enum {
     FLOOR = 0,
     WALL = 1,
     DOOR = 2,
@@ -80,6 +92,8 @@ typedef struct {
 
 struct Room {
     SDL_Rect area;
+    int visited;
+    RoomContents contents;
     Corridor *corridors[LAST_DIRECTION];
 };
 
@@ -105,12 +119,14 @@ static void run(void);
 static void SIG_term(int signal);
 static void sidebar_blit(void);
 static void sidebar_build(void);
+static void splash_show(void);
 static void tileview_blit(void);
 static void tileview_build(void);
 static int tile_next_to_object(int x, int y);
 
 static SDL_Surface *screen;
 static SDL_Surface *marker;
+static SDL_Surface *splash;
 static TileView tileview;
 static TTF_Font *font;
 static SDL_Rect sidebar_offest;
@@ -118,10 +134,10 @@ static SideBar sidebar;
 static Tile tiles[TILES_WIDE][TILES_HIGH];
 static SDL_Surface *tileimg[LAST_TILE];
 static Uint32 base_frame_delay;
-static int RUNNING;
 static SDL_Event event;
 static Room *rootroom;
 static Room *currroom;
+static GameState gamestate;
 
 /* Torally BROKEN */
 static void
@@ -199,6 +215,11 @@ do_move(Direction d) {
 
     map_show_rect(&currroom->area);
     camera_centre_on(&currroom->area);
+
+    if (!currroom->visited) {
+        splash_show();
+        gamestate = STATE_SPLASH;
+    }
 }
 
 static void
@@ -223,6 +244,7 @@ graphics_init(void) {
     tileimg[WALL] = load_image("res/tiles/wall.png");
     tileimg[DOOR] = load_image("res/tiles/door.png");
     marker = load_image("res/marker.png");
+    splash = load_image("res/splash.png");
 
     sidebar_build();
     tileview_build();
@@ -234,29 +256,37 @@ graphics_init(void) {
 static void
 handle_keypress(SDL_KeyboardEvent *key) {
     switch(key->keysym.sym) {
-        case SDLK_ESCAPE:
-            RUNNING = 0;
-            break;
-        case SDLK_w:
-        case SDLK_a:
-        case SDLK_s:
-        case SDLK_d:
-            camera_move(key->keysym.sym);
-            break;
-        case SDLK_UP:
-            do_move(NORTH);
-            break;
-        case SDLK_DOWN:
-            do_move(SOUTH);
-            break;
-        case SDLK_LEFT:
-            do_move(WEST);
-            break;
-        case SDLK_RIGHT:
-            do_move(EAST);
-            break;
-        default:
-            break;
+        if (gamestate == STATE_MOVEMENT ) {
+            case SDLK_ESCAPE:
+                gamestate = STATE_QUITTING;
+                break;
+            case SDLK_w:
+            case SDLK_a:
+            case SDLK_s:
+            case SDLK_d:
+                camera_move(key->keysym.sym);
+                return;
+            case SDLK_UP:
+                do_move(NORTH);
+                return;
+            case SDLK_DOWN:
+                do_move(SOUTH);
+                return;
+            case SDLK_LEFT:
+                do_move(WEST);
+                return;
+            case SDLK_RIGHT:
+                do_move(EAST);
+                return;
+        }
+        else if (gamestate == STATE_SPLASH) {
+            case SDLK_SPACE:
+                gamestate = STATE_MOVEMENT;
+                tileview_blit();
+                return;
+        }
+            default:
+                break;
     }
 }
 
@@ -269,7 +299,7 @@ init(void) {
         exit(EXIT_FAILURE);
     }
 
-    RUNNING = 1;
+    gamestate = STATE_SPLASH;
 }
 
 static SDL_Surface*
@@ -424,6 +454,7 @@ map_add_room(SDL_Rect r, Corridor *c, Direction entered_from) {
     }
 
     rm->area = r;
+    rm->visited = 0;
     rm->corridors[NORTH] = NULL;
     rm->corridors[SOUTH] = NULL;
     rm->corridors[EAST] = NULL;
@@ -443,6 +474,9 @@ map_add_room(SDL_Rect r, Corridor *c, Direction entered_from) {
             continue;
         rm->corridors[d] = map_add_corridor(rm, d);
     }
+
+    /* Need to figure out how to make this make the last room the stairs down */
+    rm->contents = rand() % CONT_STAIRS_DOWN;
 
     return rm;
 }
@@ -496,8 +530,7 @@ map_make(void) {
     } while ( !map_validate_rect(&r, ROOM_SPACING) );
     currroom = rootroom = map_add_room(r, NULL, LAST_DIRECTION);
 
-    map_show_rect(&currroom->area);
-    camera_centre_on(&currroom->area);
+    rootroom->contents = CONT_STAIRS_UP;
 }
 
 static void
@@ -567,7 +600,7 @@ run(void) {
             case SDL_KEYUP:
                 break;
             case SDL_QUIT:
-                RUNNING = 0;
+                gamestate = STATE_QUITTING;
                 break;
         }
     }
@@ -609,7 +642,19 @@ sidebar_build(void) {
 static void
 SIG_term(int signal) {
     puts("Received SIGTERM. Attempting to exit cleanly.");
-    RUNNING = 0;
+    gamestate = STATE_QUITTING;
+}
+
+static void
+splash_show(void) {
+    SDL_Rect pos;
+
+    pos.x = (tileview.clip.w - splash->w) / 2;
+    pos.y = (tileview.clip.h - splash->h) / 2;
+
+    currroom->visited = 1;
+
+    SDL_BlitSurface(splash, NULL, screen, &pos);
 }
 
 static void
@@ -648,8 +693,13 @@ tileview_build(void) {
 int main(int args, char argv) {
     init();
     graphics_init();
-    /* complete_redraw(); */
-    while( RUNNING )
+
+    /* Our initial drawing */
+    map_show_rect(&currroom->area);
+    camera_centre_on(&currroom->area);
+    splash_show();
+
+    while( gamestate != STATE_QUITTING )
         run();
 
     return 0;
