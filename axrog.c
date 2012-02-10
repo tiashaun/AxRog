@@ -126,7 +126,7 @@ static int tile_next_to_object(int x, int y);
 
 static SDL_Surface *screen;
 static SDL_Surface *marker;
-static SDL_Surface *splash;
+static SDL_Surface *splashbase;
 static TileView tileview;
 static TTF_Font *font;
 static SDL_Rect sidebar_offest;
@@ -244,7 +244,7 @@ graphics_init(void) {
     tileimg[WALL] = load_image("res/tiles/wall.png");
     tileimg[DOOR] = load_image("res/tiles/door.png");
     marker = load_image("res/marker.png");
-    splash = load_image("res/splash.png");
+    splashbase = load_image("res/splash.png");
 
     sidebar_build();
     tileview_build();
@@ -255,8 +255,8 @@ graphics_init(void) {
 
 static void
 handle_keypress(SDL_KeyboardEvent *key) {
-    switch(key->keysym.sym) {
-        if (gamestate == STATE_MOVEMENT ) {
+    if (gamestate == STATE_MOVEMENT) {
+        switch(key->keysym.sym) {
             case SDLK_ESCAPE:
                 gamestate = STATE_QUITTING;
                 break;
@@ -279,14 +279,14 @@ handle_keypress(SDL_KeyboardEvent *key) {
                 do_move(EAST);
                 return;
         }
-        else if (gamestate == STATE_SPLASH) {
+    }
+    else if (gamestate == STATE_SPLASH) {
+        switch(key->keysym.sym) {
             case SDLK_SPACE:
                 gamestate = STATE_MOVEMENT;
                 tileview_blit();
                 return;
         }
-            default:
-                break;
     }
 }
 
@@ -648,13 +648,13 @@ SIG_term(int signal) {
 static void
 splash_show(void) {
     SDL_Rect pos;
+    SDL_Surface *toplayer;
 
-    pos.x = (tileview.clip.w - splash->w) / 2;
-    pos.y = (tileview.clip.h - splash->h) / 2;
+    pos.x = (tileview.clip.w - splashbase->w) / 2;
+    pos.y = (tileview.clip.h - splashbase->h) / 2;
 
+    SDL_BlitSurface(splashbase, NULL, screen, &pos);
     currroom->visited = 1;
-
-    SDL_BlitSurface(splash, NULL, screen, &pos);
 }
 
 static void
