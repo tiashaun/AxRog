@@ -19,8 +19,6 @@
 #define TILES_WIDE      100
 #define TILES_HIGH      100
 
-#define SIDEBAR_WIDTH   0
-
 #define ROOM_ATTEMPTS           200
 #define ROOM_BRANCH_ATTEMPTS    200
 #define ROOM_SPACING            3 
@@ -63,11 +61,6 @@ typedef struct {
 } Tile;
 
 typedef struct {
-    SDL_Surface *drawarea;
-    SDL_Rect offset;
-} SideBar;
-
-typedef struct {
     SDL_Surface *floorarea;
     SDL_Rect clip;
     SDL_Rect offset;
@@ -104,6 +97,7 @@ static void camera_centre_on(SDL_Rect *r);
 static void cleanup(void);
 static void complete_redraw(void);
 static void do_move(Direction d);
+static void font_init(void);
 static void graphics_init(void);
 static void handle_keypress(SDL_KeyboardEvent *key);
 static void init(void);
@@ -119,8 +113,6 @@ static Direction opp_direction(Direction d);
 static void run(void);
 static int room_count_exits(Room *r);
 static void SIG_term(int signal);
-static void sidebar_blit(void);
-static void sidebar_build(void);
 static void splash_show(void);
 static void tileview_blit(void);
 static void tileview_build(void);
@@ -131,8 +123,6 @@ static SDL_Surface *marker;
 static SDL_Surface *splashbase;
 static TileView tileview;
 static TTF_Font *font;
-static SDL_Rect sidebar_offest;
-static SideBar sidebar;
 static Tile tiles[TILES_WIDE][TILES_HIGH];
 static SDL_Surface *tileimg[LAST_TILE];
 static Uint32 base_frame_delay;
@@ -142,6 +132,7 @@ static Room *currroom;
 static GameState gamestate;
 static int stairs_down_placed = 0;
 static SDL_Color COLOUR_BLACK;
+static SDL_Rect font_character_space;
 
 static void
 camera_centre_on(SDL_Rect *r) {
@@ -201,7 +192,6 @@ cleanup(void) {
 static void
 complete_redraw(void) {
     tileview_blit();
-    sidebar_blit();
 }
 
 static void
@@ -226,6 +216,25 @@ do_move(Direction d) {
 }
 
 static void
+font_init(void) {
+    SDL_Surface *s;
+
+    TTF_Init();
+    font = TTF_OpenFont("res/Font.ttf", 16);
+    if (!font) {
+        fputs("Failed to initialise font!", stderr);
+        exit(1);
+    }
+
+    /* Determine the space each character of our font takes up */
+    /* Expects monospace */
+    s = TTF_RenderText_Solid(font, "A", COLOUR_BLACK);
+    font_character_space.w = s->w;
+    font_character_space.h = s->h;
+    SDL_FreeSurface(s);
+}
+
+static void
 graphics_init(void) {
     SDL_Init(SDL_INIT_EVERYTHING);
     /* SDL_EnableKeyRepeat(300, 50); */
@@ -236,12 +245,7 @@ graphics_init(void) {
         exit(1);
     }
 
-    TTF_Init();
-    font = TTF_OpenFont("res/Font.ttf", 16);
-    if (!font) {
-        fputs("Failed to initialise font!", stderr);
-        exit(1);
-    }
+    font_init();
 
     tileimg[FLOOR] = load_image("res/tiles/floor.png");
     tileimg[WALL] = load_image("res/tiles/wall.png");
@@ -249,7 +253,6 @@ graphics_init(void) {
     marker = load_image("res/marker.png");
     splashbase = load_image("res/splash.png");
 
-    sidebar_build();
     tileview_build();
 
     COLOUR_BLACK.r = 0;
@@ -635,35 +638,6 @@ room_count_exits(Room *r) {
 }
 
 static void
-sidebar_blit(void) {
-    SDL_BlitSurface(sidebar.drawarea, NULL, screen, &sidebar.offset);
-}
-
-static void
-sidebar_build(void) {
-    SDL_Rect r;
-
-    sidebar.drawarea = SDL_CreateRGBSurface( SURF_TYPE, SIDEBAR_WIDTH,
-        screen->h, SCREEN_BPP, screen->format->Rmask, screen->format->Gmask,
-        screen->format->Bmask, screen->format->Amask);
-    if (!sidebar.drawarea) {
-        fputs("Unable to allocate space for sidebar surface!", stderr);
-        exit(1);
-    }
-
-    r.x = 0;
-    r.y = 0;
-    r.w = sidebar.drawarea->w;
-    r.h = screen->h;
-    SDL_FillRect(sidebar.drawarea, &r, 661238567);
-
-    sidebar.offset.x = screen->w - sidebar.drawarea->w;
-    sidebar.offset.y = 0;
-    sidebar.offset.w = sidebar.drawarea->w;
-    sidebar.offset.h = screen->h;
-}
-
-static void
 SIG_term(int signal) {
     puts("Received SIGTERM. Attempting to exit cleanly.");
     gamestate = STATE_QUITTING;
@@ -720,7 +694,7 @@ tileview_build(void) {
         exit(1);
     }
 
-    tileview.clip.w = screen->w - sidebar.drawarea->w;
+    tileview.clip.w = screen->w;
     tileview.clip.h = screen->h;
     tileview.clip.x = 0;
     tileview.clip.y = 0;
