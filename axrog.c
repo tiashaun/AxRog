@@ -673,6 +673,7 @@ static void
 splash_show(void) {
     SDL_Rect pos;
     SDL_Surface *icon;
+    SDL_Surface *descriptive;
     char* roomtext;
 
     if (currroom->contents == CONT_STAIRS_UP)
@@ -682,17 +683,17 @@ splash_show(void) {
     else /* We foudn the stairs down */
         roomtext = "You have found the stairway leading down!";
 
-    icon = TTF_RenderText_Solid(font, roomtext, COLOUR_BLACK);
+    descriptive = TTF_RenderText_Blended(font, roomtext, COLOUR_BLACK);
 
     pos.x = (tileview.clip.w - splashbase->w) / 2;
     pos.y = (tileview.clip.h - splashbase->h) / 2;
     SDL_BlitSurface(splashbase, NULL, screen, &pos);
 
-    pos.x += 100;
-    pos.y += 100;
-    SDL_BlitSurface(icon, NULL, screen, &pos);
+    pos.x += (splashbase->w - descriptive->w) / 2;
+    pos.y += (splashbase->h - descriptive->h) / 2;
+    SDL_BlitSurface(descriptive, NULL, screen, &pos);
 
-    SDL_FreeSurface(icon);
+    SDL_FreeSurface(descriptive);
 
     currroom->visited = 1;
 }
