@@ -34,9 +34,10 @@ typedef enum {
 } GameState;
 
 typedef enum {
-    CONT_STAIRS_UP = 0,
-    CONT_EMPTY = 1,
-    CONT_STAIRS_DOWN = 2 /* This must always be the last in the enum */
+    CONT_EMPTY = 0,
+    LAST_RANDOM_ROOM_TYPE = 1, /* This must always be the last of the randoms */
+    CONT_STAIRS_UP = 255,
+    CONT_STAIRS_DOWN = 256, /* Must always be 1 before last room contents type */
 } RoomContents;
 
 typedef enum {
@@ -116,6 +117,7 @@ static void map_show_rect(SDL_Rect *r);
 static int map_validate_rect(SDL_Rect *r, int spacing);
 static Direction opp_direction(Direction d);
 static void run(void);
+static int room_count_exits(Room *r);
 static void SIG_term(int signal);
 static void sidebar_blit(void);
 static void sidebar_build(void);
@@ -138,8 +140,9 @@ static SDL_Event event;
 static Room *rootroom;
 static Room *currroom;
 static GameState gamestate;
+static int stairs_down_placed = 0;
+static SDL_Color COLOUR_BLACK;
 
-/* Torally BROKEN */
 static void
 camera_centre_on(SDL_Rect *r) {
     Point r_centre;
@@ -234,7 +237,7 @@ graphics_init(void) {
     }
 
     TTF_Init();
-    font = TTF_OpenFont("res/Font.ttf", 10);
+    font = TTF_OpenFont("res/Font.ttf", 16);
     if (!font) {
         fputs("Failed to initialise font!", stderr);
         exit(1);
@@ -248,6 +251,10 @@ graphics_init(void) {
 
     sidebar_build();
     tileview_build();
+
+    COLOUR_BLACK.r = 0;
+    COLOUR_BLACK.g = 0;
+    COLOUR_BLACK.b = 0;
 
     SDL_ShowCursor(0);
     base_frame_delay = 1000 / FRAMERATE;
@@ -475,8 +482,12 @@ map_add_room(SDL_Rect r, Corridor *c, Direction entered_from) {
         rm->corridors[d] = map_add_corridor(rm, d);
     }
 
-    /* Need to figure out how to make this make the last room the stairs down */
-    rm->contents = rand() % CONT_STAIRS_DOWN;
+    if (!stairs_down_placed && room_count_exits(rm) == 1) {
+        rm->contents = CONT_STAIRS_DOWN;
+        stairs_down_placed = 1;
+    }
+    else
+        rm->contents = rand() % LAST_RANDOM_ROOM_TYPE;
 
     return rm;
 }
@@ -546,7 +557,8 @@ map_show_rect(SDL_Rect *r) {
             tiles[x][y].visible = 1;    
             pos.x = x * TILE_SIZE;
             pos.y = y * TILE_SIZE;
-            SDL_BlitSurface(tileimg[tiles[x][y].base], NULL, tileview.floorarea, &pos);
+            SDL_BlitSurface(tileimg[tiles[x][y].base], NULL, tileview.floorarea,
+                &pos);
         }
     }
 
@@ -610,6 +622,18 @@ run(void) {
         SDL_Delay(base_frame_delay + start - end);
 }
 
+static int
+room_count_exits(Room *r) {
+    int i, e;
+
+    for(i = 0, e = 0; i < LAST_DIRECTION; ++i) {
+        if (r->corridors[i])
+            ++e;
+    }
+
+    return e;
+}
+
 static void
 sidebar_blit(void) {
     SDL_BlitSurface(sidebar.drawarea, NULL, screen, &sidebar.offset);
@@ -648,19 +672,36 @@ SIG_term(int signal) {
 static void
 splash_show(void) {
     SDL_Rect pos;
-    SDL_Surface *toplayer;
+    SDL_Surface *icon;
+    char* roomtext;
+
+    if (currroom->contents == CONT_STAIRS_UP)
+        roomtext = "This room contains a stairway leading up.";
+    else if (currroom->contents == CONT_EMPTY)
+        roomtext = "This room is empty of anything interesting.";
+    else /* We foudn the stairs down */
+        roomtext = "You have found the stairway leading down!";
+
+    icon = TTF_RenderText_Solid(font, roomtext, COLOUR_BLACK);
 
     pos.x = (tileview.clip.w - splashbase->w) / 2;
     pos.y = (tileview.clip.h - splashbase->h) / 2;
-
     SDL_BlitSurface(splashbase, NULL, screen, &pos);
+
+    pos.x += 100;
+    pos.y += 100;
+    SDL_BlitSurface(icon, NULL, screen, &pos);
+
+    SDL_FreeSurface(icon);
+
     currroom->visited = 1;
 }
 
 static void
 tileview_blit(void) {
     SDL_FillRect(screen, &tileview.offset, 0);
-    SDL_BlitSurface(tileview.floorarea, &tileview.clip, screen, &tileview.offset);
+    SDL_BlitSurface(tileview.floorarea, &tileview.clip, screen,
+        &tileview.offset);
     marker_blit();
 }
 
