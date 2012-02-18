@@ -2,7 +2,9 @@
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
 #include <signal.h>
+#include <math.h>
 #include <time.h>
+#include <string.h>
 
 #define MIN(x, y)       ((x) < (y) ? (x) : (y))
 #define MAX(x, y)       ((x) > (y) ? (x) : (y))
@@ -18,6 +20,8 @@
 #define TILE_SIZE       32
 #define TILES_WIDE      100
 #define TILES_HIGH      100
+
+#define SPLASH_TEXT_BORDER 150
 
 #define ROOM_ATTEMPTS           200
 #define ROOM_BRANCH_ATTEMPTS    200
@@ -646,28 +650,50 @@ SIG_term(int signal) {
 static void
 splash_show(void) {
     SDL_Rect pos;
+    SDL_Rect textbase;
     SDL_Surface *icon;
     SDL_Surface *descriptive;
-    char* roomtext;
+    char *roomtext;
+    char *tok;
+
+    roomtext = (char*) malloc(256);
 
     if (currroom->contents == CONT_STAIRS_UP)
-        roomtext = "This room contains a stairway leading up.";
+        strcpy(roomtext, "This room contains a stairway leading up.");
     else if (currroom->contents == CONT_EMPTY)
-        roomtext = "This room is empty of anything interesting.";
+        strcpy(roomtext, "This room is empty of anything interesting.");
     else /* We foudn the stairs down */
-        roomtext = "You have found the stairway leading down!";
+        strcpy(roomtext, "You have found the stairway leading down!");
 
-    descriptive = TTF_RenderText_Blended(font, roomtext, COLOUR_BLACK);
+    /* descriptive = TTF_RenderText_Blended(font, roomtext, COLOUR_BLACK); */
 
     pos.x = (tileview.clip.w - splashbase->w) / 2;
     pos.y = (tileview.clip.h - splashbase->h) / 2;
     SDL_BlitSurface(splashbase, NULL, screen, &pos);
 
-    pos.x += (splashbase->w - descriptive->w) / 2;
-    pos.y += (splashbase->h - descriptive->h) / 2;
-    SDL_BlitSurface(descriptive, NULL, screen, &pos);
+    pos.x = textbase.x = pos.x + SPLASH_TEXT_BORDER / 2;
+    pos.y = textbase.y = pos.y + SPLASH_TEXT_BORDER / 2;
+    textbase.w = splashbase->w - SPLASH_TEXT_BORDER;
+    textbase.h = splashbase->h - SPLASH_TEXT_BORDER;
+    
+    tok = strtok(roomtext, " ");
+    while (tok) {
+        descriptive = TTF_RenderText_Blended(font, tok, COLOUR_BLACK);
+        if (pos.x + descriptive->w > textbase.x + textbase.w) {
+            pos.x = 0;
+            pos.y += descriptive->h;
+        }
 
-    SDL_FreeSurface(descriptive);
+        SDL_BlitSurface(descriptive, NULL, screen, &pos);
+        SDL_FreeSurface(descriptive);
+
+        if (pos.x + descriptive->w <= textbase.x + textbase.w)
+            pos.x += descriptive->w + font_character_space.w;
+
+        tok = strtok(NULL, " ");
+    }
+
+    free(roomtext);
 
     currroom->visited = 1;
 }
