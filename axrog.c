@@ -655,11 +655,15 @@ splash_show(void) {
     SDL_Surface *descriptive;
     char *roomtext;
     char *tok;
+    char *c;
+    char breaktype;
 
     roomtext = (char*) malloc(256);
 
     if (currroom->contents == CONT_STAIRS_UP)
-        strcpy(roomtext, "This room contains a stairway leading up.");
+        strcpy(roomtext, "This room contains a stairway leading up. This is quite\
+a long string with breaks and all kinds of other stuff.\n It even\n\
+has\nunnecessary\nmiddle\nbreaks.");
     else if (currroom->contents == CONT_EMPTY)
         strcpy(roomtext, "This room is empty of anything interesting.");
     else /* We foudn the stairs down */
@@ -675,24 +679,37 @@ splash_show(void) {
     pos.y = textbase.y = pos.y + SPLASH_TEXT_BORDER / 2;
     textbase.w = splashbase->w - SPLASH_TEXT_BORDER;
     textbase.h = splashbase->h - SPLASH_TEXT_BORDER;
-    
-    tok = strtok(roomtext, " ");
-    while (tok) {
+
+    c = roomtext;
+    while(1) {
+        tok = c;
+        while (*c != ' ' && *c != '\n' && *c != '\0')
+            ++c;
+        breaktype = *c;
+        *c = '\0';
+
         descriptive = TTF_RenderText_Blended(font, tok, COLOUR_BLACK);
+
         if (pos.x + descriptive->w > textbase.x + textbase.w) {
-            pos.x = 0;
+            pos.x = textbase.x;
             pos.y += descriptive->h;
         }
 
         SDL_BlitSurface(descriptive, NULL, screen, &pos);
         SDL_FreeSurface(descriptive);
 
-        if (pos.x + descriptive->w <= textbase.x + textbase.w)
+        if (breaktype == '\0')
+            break;
+        else if (breaktype == '\n') {
+            pos.x = textbase.x;
+            pos.y += descriptive->h;
+        }
+        else { /* It's just a space */
             pos.x += descriptive->w + font_character_space.w;
+        }
 
-        tok = strtok(NULL, " ");
-    }
-
+        while (*++c == ' ');
+    }    
     free(roomtext);
 
     currroom->visited = 1;
