@@ -8,19 +8,21 @@
 class Game {
     public:
     
-    Game(void);
+    Game(SDL_Surface *screen);
     ~Game(void);
     bool isRunning(void);
-    void Update(void);
+    void Update(SDL_Surface *surf);
     void DrawTo(SDL_Surface *surf);
     void FramePause(void);
+    void HandleInput(SDL_Event *e);
+    void HandleKeypress(SDL_KeyboardEvent *key);
 
     Map *map;
     Party *party;
     bool running;
-    int last_update;
-    int camera_x;
-    int camera_y;
+    bool needRedraw;
+    int framedelay;
+    int lastupdate;
 };
 
 #endif

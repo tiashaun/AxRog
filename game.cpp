@@ -1,12 +1,15 @@
 #include "game.hpp"
 
-Game::Game(void) {
-    map = new Map(400, 400);
+#define CAMERA_SPEED    15
+#define FRAMERATE       24
+
+Game::Game(SDL_Surface *screen) {
+    map = new Map(100, 100, screen);
     party = new Party();
 
+    framedelay = 1000/FRAMERATE;
     running = true;
-    camera_x = 0;
-    camera_y = 0;
+    needRedraw = true;
 }
 
 Game::~Game(void) {
@@ -20,8 +23,11 @@ Game::isRunning(void) {
 }
 
 void
-Game::Update(void) {
-
+Game::Update(SDL_Surface *surf) {
+    if (needRedraw) {
+        DrawTo(surf);
+        needRedraw = false;
+    }
 }
 
 void
@@ -31,5 +37,54 @@ Game::DrawTo(SDL_Surface *surf) {
 
 void
 Game::FramePause(void) {
+    Uint32 t;
 
+    t = SDL_GetTicks();
+    if (t - lastupdate < framedelay)
+        SDL_Delay(framedelay - (t - lastupdate));
+
+    lastupdate = SDL_GetTicks();
+}
+
+void
+Game::HandleInput(SDL_Event *e) {
+    while ( SDL_PollEvent(e) ) {
+        switch (e->type) {
+            case SDL_KEYDOWN:
+                HandleKeypress(&e->key);
+                break;
+            case SDL_KEYUP:
+                break;
+            case SDL_QUIT:
+                running = false;
+                break;
+        }
+    }
+}
+
+void
+Game::HandleKeypress(SDL_KeyboardEvent *key) {
+    switch(key->keysym.sym) {
+        case SDLK_ESCAPE:
+            running = 0;
+            break;
+        case SDLK_LEFT:
+            map->MoveCamera(-CAMERA_SPEED, 0);
+            needRedraw = true;
+            break;
+        case SDLK_RIGHT:
+            map->MoveCamera(+CAMERA_SPEED, 0);
+            needRedraw = true;
+            break;
+        case SDLK_UP:
+            map->MoveCamera(0, -CAMERA_SPEED);
+            needRedraw = true;
+            break;
+        case SDLK_DOWN:
+            map->MoveCamera(0, CAMERA_SPEED);
+            needRedraw = true;
+            break;
+        default:
+            break;
+    }
 }

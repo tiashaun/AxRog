@@ -9,9 +9,11 @@
 
 class Tile {
     public:
+    Tile(void);
     void load(std::string str);
 
     SDL_Surface *surf;
+    bool visible;
 };
 
 #endif
