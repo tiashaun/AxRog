@@ -1,9 +1,12 @@
 #include "game.hpp"
 
 Game::Game(void) {
-    map = new Map(40, 40);
+    map = new Map(400, 400);
     party = new Party();
+
     running = true;
+    camera_x = 0;
+    camera_y = 0;
 }
 
 Game::~Game(void) {
@@ -17,11 +20,16 @@ Game::isRunning(void) {
 }
 
 void
-Game::drawTo(SDL_Surface *screen) {
+Game::Update(void) {
 
 }
 
 void
-Game::framePause(void) {
+Game::DrawTo(SDL_Surface *surf) {
+    map->DrawTo(surf);
+}
+
+void
+Game::FramePause(void) {
 
 }

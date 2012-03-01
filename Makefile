@@ -1,6 +1,6 @@
 CFLAGS += -ggdb -O0
-OBJECTS=axrog.o party.o character.o map.o room.o tile.o game.o
-LIBS=-lSDL -lSDL_image -lSDL_ttf
+OBJECTS=axrog.o party.o character.o map.o room.o tile.o game.o resource.o
+LIBS=-lSDL -lSDL_image -lSDL_ttf -lm
 CC=g++
 
 axrog: ${OBJECTS}

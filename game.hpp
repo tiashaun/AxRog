@@ -10,15 +10,17 @@ class Game {
     
     Game(void);
     ~Game(void);
-    void run(void);
     bool isRunning(void);
-    void drawTo(SDL_Surface *screen);
-    void framePause(void);
+    void Update(void);
+    void DrawTo(SDL_Surface *surf);
+    void FramePause(void);
 
     Map *map;
     Party *party;
     bool running;
     int last_update;
+    int camera_x;
+    int camera_y;
 };
 
 #endif

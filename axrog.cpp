@@ -9,9 +9,10 @@ int main(int argc, char **argv) {
     screen = SDL_SetVideoMode( 800, 600, 32, SDL_HWSURFACE );
 
     game = new Game();
+    game->DrawTo(screen);
     while ( game->isRunning() ) {
-        game->drawTo(screen);
-        game->framePause();
+        game->Update();
+        game->FramePause();
         SDL_Flip(screen);
     }
 
