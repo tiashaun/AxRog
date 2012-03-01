@@ -1,7 +1,18 @@
 CFLAGS += -ggdb -O0
+OBJECTS=axrog.o party.o character.o map.o room.o tile.o game.o
+LIBS=-lSDL -lSDL_image -lSDL_ttf
+CC=g++
 
-axrog: axrog.c
-	$(CC) -o $@ axrog.c $(LFLAGS) $(CFLAGS) -lSDL -lSDL_ttf -lSDL_image -lm
+axrog: ${OBJECTS}
+	${CC} ${CFLAGS} -o $@ ${OBJECTS} ${LIBS}
+
+#Objects with a header file
+%.o: %.cpp %.hpp
+	${CC} ${CFLAGS} -c -o $@ $<
+
+#Objects without a header file
+%.o: %.cpp
+	${CC} ${CFLAGS} -c -o $@ $<
 
 clean:
 	-rm -f $(OBJECTS) axrog
