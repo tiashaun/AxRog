@@ -57,10 +57,10 @@ Map::ApplyRoom(Room *r) {
 void
 Map::ApplyCorridor(SDL_Rect r) {
     FloorRect(&r);
-    r.x -= 1;
-    r.y -= 1;
-    r.w += 2;
-    r.h += 2;
+    // r.x -= 1;
+    // r.y -= 1;
+    // r.w += 2;
+    // r.h += 2;
     VisibleRect(&r);
 }
 
@@ -97,7 +97,7 @@ Map::DrawTo(SDL_Surface *surf) {
     SDL_Rect src;
     SDL_Rect dest;
 
-    SDL_FillRect(surf, NULL, 376784);
+    SDL_FillRect(surf, NULL, 0);
 
     first_x = (cam.x == 0) ? 0 : floor((float) cam.x / TILE_SZ);
     last_x = ceil((float)(cam.x + cam.w) / TILE_SZ);

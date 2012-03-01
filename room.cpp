@@ -58,6 +58,7 @@ Room::FindChild(void) {
     std::vector<Direction> available;
     SDL_Rect corridor;
     SDL_Rect roomspace;
+    SDL_Rect roomspace_plusbuffer;
     int distance;
     Direction d;
 
@@ -80,7 +81,12 @@ Room::FindChild(void) {
     roomspace = FindRoomSpace(d, &corridor);
     if (roomspace.w == 0 || roomspace.h == 0)
         return;
-    if( !map->isSpaceAvailable(&roomspace) )
+
+    roomspace_plusbuffer.x = roomspace.x - 1;
+    roomspace_plusbuffer.y = roomspace.y - 1;
+    roomspace_plusbuffer.w = roomspace.w + 2;
+    roomspace_plusbuffer.h = roomspace.h + 2;
+    if( !map->isSpaceAvailable(&roomspace_plusbuffer) )
         return;
 
     map->ApplyCorridor(corridor);
