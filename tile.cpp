@@ -2,7 +2,7 @@
 #include "resource.hpp"
 
 Tile::Tile(void) {
-    visible = true;
+    visible = false;
 }
 
 void

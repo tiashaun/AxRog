@@ -17,7 +17,7 @@ Map::Map(int w, int h, SDL_Surface *screen) {
     tiles = new Tile[h*w];
 
     for (i = 0; i < h * w; ++i) {
-        tiles[i].load("res/tiles/floor.png");
+        tiles[i].load("res/tiles/wall.png");
     }
 
     rooms = new Room(this);
@@ -89,6 +89,10 @@ Map::DrawTo(SDL_Surface *surf) {
             }
 
             t = GetTile(i, e);
+            if (!t)
+                continue;
+            if (!t->visible)
+                continue;
             SDL_BlitSurface( t->surf, &src, surf, &dest );
         }
     }
