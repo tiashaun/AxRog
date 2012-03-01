@@ -82,10 +82,10 @@ Room::FindChild(void) {
     if (roomspace.w == 0 || roomspace.h == 0)
         return;
 
-    roomspace_plusbuffer.x = roomspace.x - 1;
-    roomspace_plusbuffer.y = roomspace.y - 1;
-    roomspace_plusbuffer.w = roomspace.w + 2;
-    roomspace_plusbuffer.h = roomspace.h + 2;
+    roomspace_plusbuffer.x = roomspace.x - 3;
+    roomspace_plusbuffer.y = roomspace.y - 3;
+    roomspace_plusbuffer.w = roomspace.w + 6;
+    roomspace_plusbuffer.h = roomspace.h + 6;
     if( !map->isSpaceAvailable(&roomspace_plusbuffer) )
         return;
 
