@@ -13,6 +13,7 @@ class Room {
     ~Room(void);
     Room* FindChild(void);
 
+    Map *map;
     Room *north;
     Room *south;
     Room *east;

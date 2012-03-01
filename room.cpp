@@ -1,6 +1,9 @@
 #include "room.hpp"
 
+#define CHILD_TRIES     20
+
 Room::Room(Map *m) {
+    map = m;
     north = NULL;
     south = NULL;
     east = NULL;
@@ -10,6 +13,7 @@ Room::Room(Map *m) {
 }
 
 Room::Room(Map *m, Room *n, Room *s, Room *e, Room *w) {
+    map = m;
     north = n;
     south = s;
     east = e;

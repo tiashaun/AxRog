@@ -1,7 +1,7 @@
 #include "game.hpp"
 
 #define CAMERA_SPEED    20
-#define FRAMERATE       24
+#define FRAMERATE       20
 
 Game::Game(SDL_Surface *screen) {
     map = new Map(100, 100, screen);
