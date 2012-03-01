@@ -5,6 +5,8 @@
 #include "room.hpp"
 #include "tile.hpp"
 
+class Room;
+
 class Map {
     public:
     Map(int w, int h, SDL_Surface *screen);
@@ -14,8 +16,7 @@ class Map {
     void SetCamera(int x, int y, int w, int h);
     void MoveCamera(int x, int y);
 
-    Room *start_room;
-    Room *end_room;
+    Room *rooms;
     int width;
     int height;
     SDL_Rect cam;

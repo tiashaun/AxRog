@@ -8,8 +8,9 @@ int main(int argc, char **argv) {
     SDL_Event events;
 
     SDL_Init(SDL_INIT_EVERYTHING);
-    screen = SDL_SetVideoMode( 1280, 1024, 32, SDL_HWSURFACE );
     SDL_EnableKeyRepeat(300, 50);
+    SDL_WM_SetCaption("Ax Rogue", NULL);
+    screen = SDL_SetVideoMode( 1280, 1024, 32, SDL_HWSURFACE );
 
     game = new Game(screen);
     while ( game->isRunning() ) {

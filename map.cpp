@@ -19,10 +19,13 @@ Map::Map(int w, int h, SDL_Surface *screen) {
     for (i = 0; i < h * w; ++i) {
         tiles[i].load("res/tiles/floor.png");
     }
+
+    rooms = new Room(this);
 }
 
 Map::~Map(void) {
     delete tiles;
+    delete rooms;
 }
 
 Tile*
