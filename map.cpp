@@ -2,7 +2,8 @@
 #include <cmath>
 #include <cstdlib>
 
-#define MAX(x, y) ((x < y) ? y : x)
+#define MAX(x, y) ((x > y) ? (x) : (y))
+#define MIN(x, y) ((x < y) ? (x) : (y))
 
 #define TILE_SZ     32
 
@@ -80,8 +81,8 @@ Map::VisibleRect(SDL_Rect *r) {
     int e, i;
     Tile *t;
 
-    for (e = MAX(r->y - 1, 0); e < r->y + r->h + 1; ++e) {
-        for (i = MAX(r->x - 1, 0); i < r->x + r->w + 1; ++i) {
+    for (e = MAX(r->y - 1, 0); MIN(e < r->y + r->h + 1, width); ++e) {
+        for (i = MAX(r->x - 1, 0); MIN(i < r->x + r->w + 1, width); ++i) {
             t = GetTile(i, e);
             t->visible = true;
         }
