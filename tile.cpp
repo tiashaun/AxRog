@@ -6,6 +6,13 @@ Tile::Tile(void) {
 }
 
 void
-Tile::load(std::string str) {
-    surf = RSM::GetSurface(str);
+Tile::MakeWall(void) {
+    surf = RSM::GetSurface("res/tiles/wall.png");
+    isUnusedSpace = true;
+}
+
+void
+Tile::MakeFloor(void) {
+    surf = RSM::GetSurface("res/tiles/floor.png");
+    isUnusedSpace = false;
 }

@@ -10,8 +10,10 @@
 class Tile {
     public:
     Tile(void);
-    void load(std::string str);
+    void MakeWall(void);
+    void MakeFloor(void);
 
+    bool isUnusedSpace;
     SDL_Surface *surf;
     bool visible;
 };

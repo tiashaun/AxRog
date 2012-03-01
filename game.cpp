@@ -1,10 +1,10 @@
 #include "game.hpp"
 
-#define CAMERA_SPEED    20
+#define CAMERA_SPEED    150
 #define FRAMERATE       20
 
 Game::Game(SDL_Surface *screen) {
-    map = new Map(100, 100, screen);
+    map = new Map(50, 50, screen);
     party = new Party();
 
     framedelay = 1000/FRAMERATE;

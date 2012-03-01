@@ -1,63 +1,125 @@
+#include <vector>
 #include "room.hpp"
 
 #define CHILD_TRIES     20
 
 Room::Room(Map *m) {
     map = m;
-    north = NULL;
-    south = NULL;
-    east = NULL;
-    west = NULL;
+    children[NORTH] = NULL;
+    children[SOUTH] = NULL;
+    children[EAST] = NULL;
+    children[WEST] = NULL;
 
-    space.w = 4;
-    space.h = 5;
-    space.x = 15;
-    space.y = 15;
+    space = FindRoomSpace(NO_DIRECTION, NULL);
 
-    FindChild();
+    map->ApplyRoom(this);
 
-    ApplyToMap();
+    for (int i = 0; i < CHILD_TRIES; ++i) {
+        if (!hasChildrenAvailable())
+            break;
+        FindChild();
+    }
+
 }
 
 Room::Room(Map *m, Room *n, Room *s, Room *e, Room *w) {
     map = m;
-    north = n;
-    south = s;
-    east = e;
-    west = w;
+    children[NORTH] = n;
+    children[SOUTH] = s;
+    children[EAST] = e;
+    children[WEST] = w;
 }
 
 Room::~Room(void) {
-    if (north)
-        delete north;
-    if (south)
-        delete south;
-    if (east)
-        delete east;
-    if (west)
-        delete west;
-}
-
-Room*
-Room::FindChild(void) {
-    return NULL;
+    for (int i = 0; i < LAST_DIRECTION; ++i)
+        if (children[i])
+            delete children[i];
 }
 
 void
-Room::ApplyToMap(void) {
-    Tile *t;
-    for (int e = space.y; e < space.y + space.h; ++e) {
-        for (int i = space.x; i < space.x + space.w; ++i) {
-            t = map->GetTile(i, e);
-            t->load("res/tiles/floor.png");
-        }
+Room::FindChild(void) {
+    std::vector<Direction> available;
+    SDL_Rect corridor;
+    SDL_Rect roomspace;
+    int distance;
+    Direction d;
+
+    for (int i = NORTH; i < LAST_DIRECTION; ++i) {
+        if (!children[i])
+            available.push_back((Direction) i);
     }
 
-    for (int e = space.y - 1; e < space.y + space.h + 1; ++e) {
-        for (int i = space.x - 1; i < space.x + space.w + 1; ++i) {
-            t = map->GetTile(i, e);
-            t->visible = true;
-        }
+    d = available[rand() % available.size()];
+
+    //At this point we have one randomly selected available direction
+    //And we need to make our corridor
+    corridor = FindCorridor(d);
+    if( !map->isSpaceAvailable(&corridor) )
+        return;
+
+    roomspace = FindRoomSpace(d, &corridor);
+    if (roomspace.w == 0 || roomspace.h == 0)
+        return;
+    // TODO: Find room space to attach to corridor
+    // if room space is free then apply the corridor
+    // and add the new room as a child
+    // the new room will then try to add children
+}
+
+SDL_Rect
+Room::FindRoomSpace(Direction d, SDL_Rect *corridor) {
+    SDL_Rect ret;
+
+    ret.w = rand() % 5 + 3;
+    ret.h = rand() % 5 + 3;
+    if (d == NO_DIRECTION) {
+        ret.x = rand() % (map->width - ret.w - 2) + 1;
+        ret.y = rand() % (map->height - ret.h - 2) + 1;
+    }
+    else
+        return (SDL_Rect){0, 0, 0, 0};
+
+    if ( !map->isSpaceAvailable(&ret) )
+        return (SDL_Rect){0, 0, 0, 0};
+
+    return ret;
+}
+
+SDL_Rect
+Room::FindCorridor(Direction d) {
+    SDL_Rect ret;
+
+    if (d == NORTH || d == SOUTH) {
+        ret.w = 1;
+        ret.h = rand() % 5 + 3;
+    }
+    else { //d == EAST || d == WEST
+        ret.h = 1;
+        ret.w = rand() % 5 + 3;
     }
 
+    if (d == NORTH) {
+        ret.x = space.x + rand() % space.w;
+        ret.y = space.y - ret.h;
+    }
+    else if (d == SOUTH) {
+        ret.x = space.x + rand() % space.w;
+        ret.y = space.y + space.h;
+    }
+    else if (d == EAST) {
+        ret.x = space.x + space.w;
+        ret.y = space.y + rand() % space.h;
+    }
+    else { //if d == WEST
+        ret.x = space.x - ret.w;
+        ret.y = space.y + rand() % space.h;
+    }
+
+    return ret;
+}
+
+bool
+Room::hasChildrenAvailable(void) {
+    return !(children[NORTH] && children[SOUTH] && children[EAST] && 
+        children[WEST]);
 }

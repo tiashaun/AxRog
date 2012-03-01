@@ -1,3 +1,4 @@
+#include <ctime>
 #include <SDL/SDL.h>
 #include "game.hpp"
 #include "resource.hpp"
@@ -6,6 +7,8 @@ int main(int argc, char **argv) {
     Game *game;
     SDL_Surface *screen;
     SDL_Event events;
+
+    srand(time(NULL));
 
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_EnableKeyRepeat(300, 50);

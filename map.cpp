@@ -2,6 +2,8 @@
 #include <cmath>
 #include <cstdlib>
 
+#define MAX(x, y) ((x < y) ? y : x)
+
 #define TILE_SZ     32
 
 Map::Map(int w, int h, SDL_Surface *screen) {
@@ -17,7 +19,7 @@ Map::Map(int w, int h, SDL_Surface *screen) {
     tiles = new Tile[h*w];
 
     for (i = 0; i < h * w; ++i) {
-        tiles[i].load("res/tiles/wall.png");
+        tiles[i].MakeWall();
     }
 
     rooms = new Room(this);
@@ -39,6 +41,51 @@ Map::GetTile(int x, int y) {
     index = y * width + x;
 
     return &tiles[index];
+}
+
+void
+Map::ApplyRoom(Room *r) {
+    SDL_Rect rect;
+    Tile *t;
+
+    rect = r->space;
+    FloorRect(&rect);
+    VisibleRect(&rect);
+}
+
+void
+Map::ApplyCorridor(SDL_Rect r) {
+    FloorRect(&r);
+    r.x -= 1;
+    r.y -= 1;
+    r.w += 2;
+    r.h += 2;
+    VisibleRect(&r);
+}
+
+void
+Map::FloorRect(SDL_Rect *r) {
+    Tile *t;
+
+     for (int e = r->y; e < r->y + r->h; ++e) {
+        for (int i = r->x; i < r->x + r->w; ++i) {
+            t = GetTile(i, e);
+            t->MakeFloor();
+        }
+    }
+}
+
+void
+Map::VisibleRect(SDL_Rect *r) {
+    int e, i;
+    Tile *t;
+
+    for (e = MAX(r->y - 1, 0); e < r->y + r->h + 1; ++e) {
+        for (i = MAX(r->x - 1, 0); i < r->x + r->w + 1; ++i) {
+            t = GetTile(i, e);
+            t->visible = true;
+        }
+    }
 }
 
 void
@@ -111,4 +158,24 @@ Map::MoveCamera(int x, int y) {
         cam.x = width * TILE_SZ - cam.w;
     if (cam.y + cam.h > height * TILE_SZ)
         cam.y = height * TILE_SZ - cam.h;
+}
+
+bool
+Map::isSpaceAvailable(SDL_Rect *r) {
+    Tile *t;
+
+    if (r->x <= 0 || r->y <= 0)
+        return false;
+    if (r->x + r->w >= width || r->y + r->h >= height)
+        return false;
+
+    for(int e = r->y; e < r->y + r->h; ++e) {
+        for(int i = r->x; i < r->x + r->w; ++i) {
+            t = GetTile(i, e);
+            if ( !t->isUnusedSpace )
+                return false;
+        }
+    }
+
+    return true;
 }

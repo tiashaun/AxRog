@@ -15,6 +15,11 @@ class Map {
     void DrawTo(SDL_Surface *surf);
     void SetCamera(int x, int y, int w, int h);
     void MoveCamera(int x, int y);
+    void ApplyRoom(Room *r);
+    void ApplyCorridor(SDL_Rect r);
+    void FloorRect(SDL_Rect *r);
+    void VisibleRect(SDL_Rect *r);
+    bool isSpaceAvailable(SDL_Rect *r);
 
     Room *rooms;
     int width;
