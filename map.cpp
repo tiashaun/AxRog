@@ -40,41 +40,53 @@ Map::GetTile(int x, int y) {
 
 void
 Map::DrawTo(SDL_Surface *surf) {
-    SDL_Rect to;
-    SDL_Rect from;
-    Tile *t;
     int first_x, last_x;
     int first_y, last_y;
+    Tile *t;
+    SDL_Rect src;
+    SDL_Rect dest;
 
-    // TODO: Change to black
     SDL_FillRect(surf, NULL, 376784);
 
-    // Ceil and floor swapped wile I work a way to do this without overlappign edges
-    first_x = (cam.x == 0) ? 0 : ceil((float)cam.x / TILE_SZ);
-    last_x = floor((float) (cam.x + surf->w - 10) / TILE_SZ);
-    first_y = (cam.y == 0) ? 0 : ceil((float)cam.y / TILE_SZ);
-    last_y = floor((float) (cam.y + surf->h - 10) / TILE_SZ);
-
-    to.x = 0;
-    to.y = 0;
-    to.w = to.h = TILE_SZ;
-
-    from.x = 0;
-    from.y = 0;
-    from.w = from.h = TILE_SZ;
+    first_x = (cam.x == 0) ? 0 : floor((float) cam.x / TILE_SZ);
+    last_x = ceil((float)(cam.x + cam.w) / TILE_SZ);
+    first_y = (cam.y == 0) ? 0 : floor((float) cam.y / TILE_SZ);
+    last_y = ceil((float)(cam.y + cam.h) / TILE_SZ);
 
     for (int e = first_y; e < last_y; ++e) {
-        to.y = e * TILE_SZ - cam.y;
+        src.y = 0;
+        src.h = TILE_SZ;
+        dest.h = TILE_SZ;
+
+        dest.y = e * TILE_SZ - cam.y;
+        if(dest.y < 0) {
+            src.y = -dest.y;
+            src.h -= src.y;
+            dest.y = 0;
+        }
+        else if (dest.y + dest.h > cam.h) {
+            dest.h -= dest.y + dest.h - cam.h;
+            src.h = dest.h;
+        }
+
         for (int i = first_x; i < last_x; ++i) {
-            to.x = i * TILE_SZ - cam.x;
+            src.x = 0;
+            src.w = TILE_SZ;
+            dest.w = TILE_SZ;
+
+            dest.x = i * TILE_SZ - cam.x;
+            if(dest.x < 0) {
+                src.x = -dest.x;
+                src.w -= src.x;
+                dest.x = 0;
+            }
+            else if (dest.x + dest.w > cam.w) {
+                dest.w -= dest.x + dest.w - cam.w;
+                src.w = dest.w;
+            }
 
             t = GetTile(i, e);
-            if(!t)
-                continue;
-            if(!t->visible)
-                continue;
-            SDL_BlitSurface( t->surf, &from, surf, &to );
-
+            SDL_BlitSurface( t->surf, &src, surf, &dest );
         }
     }
 }

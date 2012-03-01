@@ -1,6 +1,6 @@
 #include "game.hpp"
 
-#define CAMERA_SPEED    15
+#define CAMERA_SPEED    20
 #define FRAMERATE       24
 
 Game::Game(SDL_Surface *screen) {
