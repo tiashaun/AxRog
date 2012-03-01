@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
     SDL_Event events;
 
     SDL_Init(SDL_INIT_EVERYTHING);
-    screen = SDL_SetVideoMode( 1920, 1080, 32, SDL_HWSURFACE );
+    screen = SDL_SetVideoMode( 1280, 1024, 32, SDL_HWSURFACE );
     SDL_EnableKeyRepeat(300, 50);
 
     game = new Game(screen);
