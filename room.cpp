@@ -100,20 +100,20 @@ Room::FindRoomSpace(Direction d, SDL_Rect *corridor) {
     ret.w = rand() % 5 + 3;
     ret.h = rand() % 5 + 3;
     if (d == NORTH) {
-        ret.x = corridor->x - rand() % ret.w;
+        ret.x = corridor->x - rand() % (ret.w - 2) - 1;
         ret.y = corridor->y - ret.h;
     }
     else if (d == SOUTH) {
-        ret.x = corridor->x - rand() % ret.w;
+        ret.x = corridor->x - rand() % (ret.w - 2) - 1;
         ret.y = corridor->y + corridor->h;
     }
     else if (d == EAST) {
         ret.x = corridor->x + corridor->w;
-        ret.y = corridor->y - rand() % ret.h;
+        ret.y = corridor->y - rand() % (ret.h - 2) - 1;
     }
     else if (d == WEST) {
         ret.x = corridor->x - ret.w;
-        ret.y = corridor->y - rand() % ret.h;
+        ret.y = corridor->y - rand() % (ret.h - 2) - 1;
     }
     else { //d = NO_DIRECTION
         ret.x = rand() % (map->width - ret.w - 2) + 1;
@@ -140,20 +140,20 @@ Room::FindCorridor(Direction d) {
     }
 
     if (d == NORTH) {
-        ret.x = space.x + rand() % space.w;
+        ret.x = space.x + rand() % (space.w - 1) + 1;
         ret.y = space.y - ret.h;
     }
     else if (d == SOUTH) {
-        ret.x = space.x + rand() % space.w;
+        ret.x = space.x + rand() % (space.w - 1) + 1;
         ret.y = space.y + space.h;
     }
     else if (d == EAST) {
         ret.x = space.x + space.w;
-        ret.y = space.y + rand() % space.h;
+        ret.y = space.y + rand() % (space.h - 1) + 1;
     }
     else { //if d == WEST
         ret.x = space.x - ret.w;
-        ret.y = space.y + rand() % space.h;
+        ret.y = space.y + rand() % (space.h - 1) + 1;
     }
 
     return ret;

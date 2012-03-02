@@ -57,10 +57,6 @@ Map::ApplyRoom(Room *r) {
 void
 Map::ApplyCorridor(SDL_Rect r) {
     FloorRect(&r);
-    // r.x -= 1;
-    // r.y -= 1;
-    // r.w += 2;
-    // r.h += 2;
     VisibleRect(&r);
 }
 
