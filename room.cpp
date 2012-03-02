@@ -1,7 +1,7 @@
 #include <vector>
 #include "room.hpp"
 
-#define CHILD_TRIES     20
+#define CHILD_TRIES     4
 
 Room::Room(Map *m) {
     map = m;
