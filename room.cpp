@@ -212,3 +212,8 @@ Room::GetRoomInDirection(Direction d) {
         return this;
     return children[d];
 }
+
+void
+Room::CentreCamera(void) {
+    map->CameraToRect(&this->space);
+}

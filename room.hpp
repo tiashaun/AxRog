@@ -32,6 +32,7 @@ class Room {
     void RevealRoomInDirection(Direction d);
     Room* GetRoomInDirection(Direction d);
     void Travel(Direction d);
+    void CentreCamera(void);
 
     Map *map;
     Room *children[LAST_DIRECTION];

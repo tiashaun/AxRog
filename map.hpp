@@ -20,6 +20,8 @@ class Map {
     void FloorRect(SDL_Rect *r);
     void VisibleRect(SDL_Rect *r);
     bool isSpaceAvailable(SDL_Rect *r);
+    void CameraClip(void);
+    void CameraToRect(SDL_Rect *r);
 
     Room *rooms;
     int width;

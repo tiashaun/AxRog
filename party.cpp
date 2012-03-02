@@ -22,6 +22,7 @@ Party::Travel(Direction d) {
     location->RevealPath(d);
     location->RevealRoomInDirection(d);
     location = location->GetRoomInDirection(d);
+    location->CentreCamera();
 
     //Update location indicator location
 }

@@ -24,6 +24,7 @@ Map::Map(int w, int h, SDL_Surface *screen) {
     }
 
     rooms = new Room(this);
+    CameraToRect(&rooms->space);
 }
 
 Map::~Map(void) {
@@ -150,14 +151,7 @@ Map::MoveCamera(int x, int y) {
     cam.x += x;
     cam.y += y;
 
-    if (cam.x < 0)
-        cam.x = 0;
-    if (cam.y < 0)
-        cam.y = 0;
-    if (cam.x + cam.w > width * TILE_SZ)
-        cam.x = width * TILE_SZ - cam.w;
-    if (cam.y + cam.h > height * TILE_SZ)
-        cam.y = height * TILE_SZ - cam.h;
+    CameraClip();
 }
 
 bool
@@ -178,4 +172,24 @@ Map::isSpaceAvailable(SDL_Rect *r) {
     }
 
     return true;
+}
+
+void
+Map::CameraClip(void) {
+    if (cam.x < 0)
+        cam.x = 0;
+    if (cam.y < 0)
+        cam.y = 0;
+    if (cam.x + cam.w > width * TILE_SZ)
+        cam.x = width * TILE_SZ - cam.w;
+    if (cam.y + cam.h > height * TILE_SZ)
+        cam.y = height * TILE_SZ - cam.h;
+}
+
+void
+Map::CameraToRect(SDL_Rect *r) {
+    cam.x = ((r->x + r->w / 2) * TILE_SZ) - cam.w / 2;
+    cam.y = ((r->y + r->h / 2) * TILE_SZ) - cam.h / 2;
+    
+    CameraClip();
 }
