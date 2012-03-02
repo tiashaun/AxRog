@@ -14,6 +14,7 @@ class Party {
     Character *characters[6];
     int gold;
     Room *location;
+    SDL_Surface* loc_indicator;
 };
 
 #endif

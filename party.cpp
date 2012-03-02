@@ -1,9 +1,12 @@
 #include "party.hpp"
+#include "resource.hpp"
 
 Party::Party(void) {
+    loc_indicator = RSM::GetSurface("res/marker.png");
 }
 
 Party::~Party(void) {
+    // Don't fere the loc_indicator now as this is handled by RSM::CleanUp()
 }
 
 void
@@ -19,4 +22,6 @@ Party::Travel(Direction d) {
     location->RevealPath(d);
     location->RevealRoomInDirection(d);
     location = location->GetRoomInDirection(d);
+
+    //Update location indicator location
 }

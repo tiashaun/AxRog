@@ -27,7 +27,7 @@ Map::Map(int w, int h, SDL_Surface *screen) {
 }
 
 Map::~Map(void) {
-    delete tiles;
+    delete [] tiles;
     delete rooms;
 }
 

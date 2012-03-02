@@ -10,6 +10,7 @@
 class Tile {
     public:
     Tile(void);
+    ~Tile(void);
     void MakeWall(void);
     void MakeFloor(void);
 

@@ -12,6 +12,7 @@ Game::Game(SDL_Surface *screen) {
     framedelay = 1000/FRAMERATE;
     running = true;
     needRedraw = true;
+    lastupdate = 0;
 }
 
 Game::~Game(void) {
