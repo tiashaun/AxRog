@@ -4,8 +4,10 @@
 #define FRAMERATE       20
 
 Game::Game(SDL_Surface *screen) {
-    map = new Map(500, 500, screen);
+    map = new Map(50, 50, screen);
     party = new Party();
+
+    party->SetLocation(map->rooms);
 
     framedelay = 1000/FRAMERATE;
     running = true;
@@ -68,20 +70,36 @@ Game::HandleKeypress(SDL_KeyboardEvent *key) {
         case SDLK_ESCAPE:
             running = 0;
             break;
-        case SDLK_LEFT:
+        case SDLK_w:
+            map->MoveCamera(0, -CAMERA_SPEED);
+            needRedraw = true;
+            break;
+        case SDLK_a:
             map->MoveCamera(-CAMERA_SPEED, 0);
             needRedraw = true;
             break;
-        case SDLK_RIGHT:
+        case SDLK_s:
+            map->MoveCamera(0, CAMERA_SPEED);
+            needRedraw = true;
+            break;
+        case SDLK_d:
             map->MoveCamera(+CAMERA_SPEED, 0);
             needRedraw = true;
             break;
         case SDLK_UP:
-            map->MoveCamera(0, -CAMERA_SPEED);
+            party->Travel(NORTH);
             needRedraw = true;
             break;
         case SDLK_DOWN:
-            map->MoveCamera(0, CAMERA_SPEED);
+            party->Travel(SOUTH);
+            needRedraw = true;
+            break;
+        case SDLK_LEFT:
+            party->Travel(WEST);
+            needRedraw = true;
+            break;
+        case SDLK_RIGHT:
+            party->Travel(EAST);
             needRedraw = true;
             break;
         default:

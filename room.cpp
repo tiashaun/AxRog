@@ -28,8 +28,10 @@ Room::Room(Map *m, Room *par, Direction from_direction, SDL_Rect area) {
     parent = par;
 
     for (int i = NORTH; i < LAST_DIRECTION; ++i) {
-        if (i == from_direction)
+        if (i == from_direction) {
             children[from_direction] = parent;
+            corridors[from_direction] = (SDL_Rect) {0, 0, 0, 0};
+        }
         else
             children[i] = NULL;
 
@@ -90,6 +92,7 @@ Room::FindChild(void) {
         return;
 
     map->ApplyCorridor(corridor);
+    corridors[d] = corridor;
     children[d] = new Room(map, this, ReverseDirection(d), roomspace);
 }
 
@@ -165,6 +168,11 @@ Room::hasChildrenAvailable(void) {
         children[WEST]);
 }
 
+bool
+Room::hasPathInDirection(Direction d) {
+    return children[d];
+}
+
 Direction
 Room::ReverseDirection(Direction d) {
     switch (d) {
@@ -177,4 +185,30 @@ Room::ReverseDirection(Direction d) {
         default:
             return EAST;
     }
+}
+
+void
+Room::Reveal(void) {
+    map->VisibleRect(&space);
+}
+
+void
+Room::RevealPath(Direction d) {
+    if ( !children[d] )
+        return;
+    map->VisibleRect(&corridors[d]);
+}
+
+void
+Room::RevealRoomInDirection(Direction d) {
+    if ( !children[d] )
+        return;
+    map->VisibleRect(&children[d]->space);
+}
+
+Room*
+Room::GetRoomInDirection(Direction d) {
+    if ( !children[d] )
+        return this;
+    return children[d];
 }

@@ -51,13 +51,13 @@ Map::ApplyRoom(Room *r) {
 
     rect = r->space;
     FloorRect(&rect);
-    VisibleRect(&rect);
+    // VisibleRect(&rect);
 }
 
 void
 Map::ApplyCorridor(SDL_Rect r) {
     FloorRect(&r);
-    VisibleRect(&r);
+    // VisibleRect(&r);
 }
 
 void
@@ -76,6 +76,9 @@ void
 Map::VisibleRect(SDL_Rect *r) {
     int e, i;
     Tile *t;
+
+    if (r->h == 0 || r->w == 0)
+        return;
 
     for (e = MAX(r->y - 1, 0); MIN(e < r->y + r->h + 1, width); ++e) {
         for (i = MAX(r->x - 1, 0); MIN(i < r->x + r->w + 1, width); ++i) {
