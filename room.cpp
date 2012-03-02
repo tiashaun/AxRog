@@ -143,20 +143,20 @@ Room::FindCorridor(Direction d) {
     }
 
     if (d == NORTH) {
-        ret.x = space.x + rand() % (space.w - 1) + 1;
+        ret.x = space.x + rand() % (space.w - 2) + 1;
         ret.y = space.y - ret.h;
     }
     else if (d == SOUTH) {
-        ret.x = space.x + rand() % (space.w - 1) + 1;
+        ret.x = space.x + rand() % (space.w - 2) + 1;
         ret.y = space.y + space.h;
     }
     else if (d == EAST) {
         ret.x = space.x + space.w;
-        ret.y = space.y + rand() % (space.h - 1) + 1;
+        ret.y = space.y + rand() % (space.h - 2) + 1;
     }
     else { //if d == WEST
         ret.x = space.x - ret.w;
-        ret.y = space.y + rand() % (space.h - 1) + 1;
+        ret.y = space.y + rand() % (space.h - 2) + 1;
     }
 
     return ret;

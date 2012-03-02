@@ -4,7 +4,7 @@
 #define FRAMERATE       20
 
 Game::Game(SDL_Surface *screen) {
-    map = new Map(50, 50, screen);
+    map = new Map(60, 50, screen);
     party = new Party();
 
     party->SetLocation(map->rooms);
