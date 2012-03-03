@@ -1,8 +1,10 @@
 #ifndef ROOM_H
 #define ROOM_H
 
+#include <vector>
 #include <SDL/SDL.h>
 #include "map.hpp"
+#include "roomobject.hpp"
 
 class Map;
 class Room;
@@ -39,6 +41,7 @@ class Room {
     SDL_Rect corridors[LAST_DIRECTION];
     Room *parent;
     SDL_Rect space;
+    std::vector<RoomObject> roomobjects;
 
     private:
 };
