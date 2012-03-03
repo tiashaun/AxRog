@@ -1,5 +1,6 @@
-CFLAGS += -ggdb -O0
-OBJECTS=axrog.o party.o character.o map.o room.o tile.o game.o resource.o roomobject.o
+CFLAGS += -ggdb -O0 --std=c++0x
+OBJECTS=axrog.o tile.o room.o party.o character.o map.o game.o resource.o
+EXTRAHEADS=geometry.hpp enums.hpp
 LIBS=-lSDL -lSDL_image -lSDL_ttf -lm
 CC=g++
 
@@ -7,7 +8,7 @@ axrog: ${OBJECTS}
 	${CC} ${CFLAGS} -o $@ ${OBJECTS} ${LIBS}
 
 #Objects with a header file
-%.o: %.cpp %.hpp
+%.o: %.cpp %.hpp ${EXTRAHEADS}
 	${CC} ${CFLAGS} -c -o $@ $<
 
 #Objects without a header file

@@ -4,10 +4,12 @@
 #include <vector>
 #include <SDL/SDL.h>
 #include "map.hpp"
-#include "roomobject.hpp"
+#include "geometry.hpp"
+#include "enums.hpp"
 
 class Map;
 class Room;
+class Tile;
 
 typedef enum {
     NORTH,
@@ -17,6 +19,7 @@ typedef enum {
     LAST_DIRECTION,
     NO_DIRECTION
 } Direction;
+
 
 class Room {
     public:
@@ -35,13 +38,15 @@ class Room {
     Room* GetRoomInDirection(Direction d);
     void Travel(Direction d);
     void CentreCamera(void);
+    void AddObject(Room_Object robj);
+    Tile* FindSpaceForObject(void);
 
     Map *map;
     Room *children[LAST_DIRECTION];
     SDL_Rect corridors[LAST_DIRECTION];
     Room *parent;
     SDL_Rect space;
-    std::vector<RoomObject> roomobjects;
+    std::vector<Room_Object> room_contents;
 
     private:
 };

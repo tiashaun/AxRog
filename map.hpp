@@ -6,6 +6,7 @@
 #include "tile.hpp"
 
 class Room;
+class Tile;
 
 class Map {
     public:

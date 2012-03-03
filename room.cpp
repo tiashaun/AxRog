@@ -19,6 +19,8 @@ Room::Room(Map *m) {
             break;
         FindChild();
     }
+
+    AddObject(STAIRS_UP);
 }
 
 Room::Room(Map *m, Room *par, Direction from_direction, SDL_Rect area) {
@@ -212,4 +214,28 @@ Room::GetRoomInDirection(Direction d) {
 void
 Room::CentreCamera(void) {
     map->CameraToRect(&this->space);
+}
+
+void
+Room::AddObject(Room_Object robj) {
+    Tile *t;
+
+    room_contents.push_back(robj);
+    t = FindSpaceForObject();
+    t->AddObject(robj);
+}
+
+Tile*
+Room::FindSpaceForObject(void) {
+    Point p;
+    Tile *t;
+
+    do {
+        p.x = space.x + rand() % space.w;
+        p.y = space.y + rand() % space.h;
+
+        t = map->GetTile(p.x, p.y);
+    } while (t->object);
+
+    return t;
 }

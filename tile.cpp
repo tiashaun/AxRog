@@ -3,6 +3,7 @@
 
 Tile::Tile(void) {
     visible = false;
+    object = NULL;
 }
 
 Tile::~Tile(void) {
@@ -25,4 +26,18 @@ void
 Tile::MakeDoor(void) {
     surf = RSM::GetSurface("res/tiles/door.png");
     isAvailableSpace = false;
+}
+
+void
+Tile::AddObject(Room_Object robj) {
+    switch (robj) {
+        case STAIRS_UP:
+            surf = RSM::GetSurface("res/tiles/stairs_up.png");
+            break;
+        case STAIRS_DOWN:
+            surf = RSM::GetSurface("res/tiles/stairs_down.png");
+            break;
+        default:
+            surf = NULL;
+    }
 }
