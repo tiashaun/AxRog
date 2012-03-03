@@ -19,7 +19,6 @@ Room::Room(Map *m) {
             break;
         FindChild();
     }
-
 }
 
 Room::Room(Map *m, Room *par, Direction from_direction, SDL_Rect area) {

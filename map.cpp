@@ -52,13 +52,30 @@ Map::ApplyRoom(Room *r) {
 
     rect = r->space;
     FloorRect(&rect);
-    // VisibleRect(&rect);
 }
 
 void
 Map::ApplyCorridor(SDL_Rect r) {
+    SDL_Rect door1, door2;
+    door1.x = r.x;
+    door1.y = r.y;
+    if (r.w == 1) { // Corridor is NORTH-SOUTH
+        door2.x = r.x;
+        door2.y = r.y + r.h - 1;
+        //resize for floor-making
+        r.y += 1;
+        r.h -= 2;
+    }
+    else { //Corridor is EAST-WEST
+        door2.x = r.x + r.w - 1;
+        door2.y = r.y;
+        //resize for floor-making
+        r.x += 1;
+        r.w -= 2;
+    }
+    GetTile(door1.x, door1.y)->MakeDoor();
+    GetTile(door2.x, door2.y)->MakeDoor();
     FloorRect(&r);
-    // VisibleRect(&r);
 }
 
 void

@@ -20,3 +20,9 @@ Tile::MakeFloor(void) {
     surf = RSM::GetSurface("res/tiles/floor.png");
     isAvailableSpace = false;
 }
+
+void
+Tile::MakeDoor(void) {
+    surf = RSM::GetSurface("res/tiles/door.png");
+    isAvailableSpace = false;
+}

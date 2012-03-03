@@ -13,6 +13,7 @@ class Tile {
     ~Tile(void);
     void MakeWall(void);
     void MakeFloor(void);
+    void MakeDoor(void);
 
     bool isAvailableSpace;
     SDL_Surface *surf;
