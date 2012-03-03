@@ -17,8 +17,10 @@ Party::SetLocation(Room *r) {
 
 void
 Party::Travel(Direction d) {
-    if ( !location->hasPathInDirection(d) )
+    if ( !location->hasPathInDirection(d) ) {
+        location->CentreCamera();
         return;
+    }
     location->RevealPath(d);
     location->RevealRoomInDirection(d);
     location = location->GetRoomInDirection(d);

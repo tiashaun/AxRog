@@ -14,7 +14,7 @@ class Tile {
     void MakeWall(void);
     void MakeFloor(void);
 
-    bool isUnusedSpace;
+    bool isAvailableSpace;
     SDL_Surface *surf;
     bool visible;
 };

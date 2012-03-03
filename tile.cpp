@@ -12,11 +12,11 @@ Tile::~Tile(void) {
 void
 Tile::MakeWall(void) {
     surf = RSM::GetSurface("res/tiles/wall.png");
-    isUnusedSpace = true;
+    isAvailableSpace = true;
 }
 
 void
 Tile::MakeFloor(void) {
     surf = RSM::GetSurface("res/tiles/floor.png");
-    isUnusedSpace = false;
+    isAvailableSpace = false;
 }

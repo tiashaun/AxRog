@@ -71,9 +71,6 @@ Room::FindChild(void) {
 
     d = available[rand() % available.size()];
 
-    // DEBUG
-    // d = NORTH;
-
     //At this point we have one randomly selected available direction
     //And we need to make our corridor
     corridor = FindCorridor(d);

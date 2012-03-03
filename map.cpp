@@ -166,7 +166,7 @@ Map::isSpaceAvailable(SDL_Rect *r) {
     for(int e = r->y; e < r->y + r->h; ++e) {
         for(int i = r->x; i < r->x + r->w; ++i) {
             t = GetTile(i, e);
-            if ( !t->isUnusedSpace )
+            if ( !t->isAvailableSpace )
                 return false;
         }
     }
