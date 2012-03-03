@@ -1,4 +1,3 @@
-#include <ctime>
 #include <SDL/SDL.h>
 #include "game.hpp"
 #include "resource.hpp"
@@ -14,6 +13,23 @@ SetDefaults(void) {
 
 static void
 HandleArgs(int argc, char **argv) {
+    char c;
+
+    while( (c = getopt(argc, argv, "w:h:x:y:")) != -1 ) {
+        switch (c) {
+            case 'w':
+            case 'x':
+                SCREEN_WIDTH = atoi(optarg);
+                break;
+            case 'h':
+            case 'y':
+                SCREEN_HEIGHT = atoi(optarg);
+                break;
+            case '?':
+            default:
+                break;
+        }
+    }
 }
 
 int main(int argc, char **argv) {
