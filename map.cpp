@@ -23,7 +23,14 @@ Map::Map(int w, int h, SDL_Surface *screen) {
         tiles[i].MakeWall();
     }
 
+    lastroom = NULL;
     rooms = new Room(this);
+    //This next bit is a bad case but lets be safe...
+    if (this->lastroom == NULL) {
+        lastroom = rooms;
+        rooms->AddObject(STAIRS_DOWN);
+    }
+
     CameraToRect(&rooms->space);
 }
 

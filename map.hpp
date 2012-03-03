@@ -25,6 +25,7 @@ class Map {
     void CameraToRect(SDL_Rect *r);
 
     Room *rooms;
+    Room *lastroom;
     int width;
     int height;
     SDL_Rect cam;

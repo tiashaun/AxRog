@@ -20,7 +20,6 @@ typedef enum {
     NO_DIRECTION
 } Direction;
 
-
 class Room {
     public:
     Room(Map *m);
@@ -40,6 +39,7 @@ class Room {
     void CentreCamera(void);
     void AddObject(Room_Object robj);
     Tile* FindSpaceForObject(void);
+    int CountExits(void);
 
     Map *map;
     Room *children[LAST_DIRECTION];

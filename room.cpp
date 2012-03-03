@@ -35,7 +35,6 @@ Room::Room(Map *m, Room *par, Direction from_direction, SDL_Rect area) {
         }
         else
             children[i] = NULL;
-
     }
 
     map->ApplyRoom(this);
@@ -43,6 +42,11 @@ Room::Room(Map *m, Room *par, Direction from_direction, SDL_Rect area) {
         if (!hasChildrenAvailable())
             break;
         FindChild();
+    }
+
+    if (!map->lastroom && this->CountExits() < 2) {
+        map->lastroom = this;
+        AddObject(STAIRS_DOWN);
     }
 }
 
@@ -238,4 +242,16 @@ Room::FindSpaceForObject(void) {
     } while (t->object);
 
     return t;
+}
+
+int
+Room::CountExits(void) {
+    int ret = 0;
+
+    for(int i = NORTH; i < LAST_DIRECTION; ++i) {
+        if (children[i])
+            ret++;
+    }
+
+    return ret;
 }
