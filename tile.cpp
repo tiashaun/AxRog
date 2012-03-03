@@ -32,10 +32,10 @@ void
 Tile::AddObject(Room_Object robj) {
     switch (robj) {
         case STAIRS_UP:
-            surf = RSM::GetSurface("res/tiles/stairs_up.png");
+            surf = RSM::GetSurface("res/objects/stairs_up.png");
             break;
         case STAIRS_DOWN:
-            surf = RSM::GetSurface("res/tiles/stairs_down.png");
+            surf = RSM::GetSurface("res/objects/stairs_down.png");
             break;
         default:
             surf = NULL;
