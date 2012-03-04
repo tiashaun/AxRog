@@ -4,6 +4,7 @@
 #include "entity.hpp"
 
 class Monster : public Entity {
+    public:
     int XPValue;
 };
 

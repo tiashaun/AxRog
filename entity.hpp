@@ -2,6 +2,7 @@
 #define ENTITY_H
 
 class Entity {
+    public:
     int max_health;
     int curr_health;
 };

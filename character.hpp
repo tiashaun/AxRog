@@ -4,6 +4,7 @@
 #include "entity.hpp"
 
 class Character : public Entity {
+    public:
     int level;
     int XP;
 };
