@@ -232,8 +232,35 @@ Map::DrawPartyMarker(SDL_Surface *surf, Room *r) {
     dest.x += ((r->space.w * TILE_SZ) - party_marker->w) / 2;
     dest.y += ((r->space.h * TILE_SZ) - party_marker->h) / 2;
 
-    if (dest.x > cam.w || dest.y > cam.w)
+    if (dest.x > cam.w || dest.y > cam.h)
         return;
 
-    SDL_BlitSurface(party_marker, NULL, surf, &dest);
+    dest.w = party_marker->w;
+    dest.h = party_marker->h;
+
+    if (dest.x + dest.w < 0 || dest.y + dest.h < 0)
+        return;
+
+    // Now for some clipping
+    src.x = 0;
+    src.y = 0;
+    if (dest.x + dest.w > cam.w)
+        dest.w = cam.w - dest.x;
+    if (dest.y + dest.h > cam.h)
+        dest.h = cam.h - dest.y;
+    if (dest.x < 0) {
+        dest.w = -dest.x;
+        src.x = dest.w - dest.x;
+        dest.x = 0;
+    }
+    if (dest.y < 0) {
+        dest.h = -dest.y;
+        src.y = dest.h -dest.y;
+        dest.y = 0;
+    }
+
+    src.w = dest.w;
+    src.h = dest.h;
+
+    SDL_BlitSurface(party_marker, &src, surf, &dest);
 }
