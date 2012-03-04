@@ -20,7 +20,7 @@ Room::Room(Map *m) {
         FindChild();
     }
 
-    AddObject(STAIRS_UP);
+    AddObject(RoomObject::STAIRS_UP);
 }
 
 Room::Room(Map *m, Room *par, Direction from_direction, SDL_Rect area) {
@@ -46,7 +46,7 @@ Room::Room(Map *m, Room *par, Direction from_direction, SDL_Rect area) {
 
     if (!map->lastroom && this->CountExits() < 2) {
         map->lastroom = this;
-        AddObject(STAIRS_DOWN);
+        AddObject(RoomObject::STAIRS_DOWN);
     }
 }
 
@@ -221,7 +221,7 @@ Room::CentreCamera(void) {
 }
 
 void
-Room::AddObject(Room_Object robj) {
+Room::AddObject(RoomObject::Type robj) {
     Tile *t;
 
     room_contents.push_back(robj);

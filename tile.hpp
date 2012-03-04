@@ -16,7 +16,7 @@ class Tile {
     void MakeWall(void);
     void MakeFloor(void);
     void MakeDoor(void);
-    void AddObject(Room_Object robj);
+    void AddObject(RoomObject::Type robj);
 
     bool isAvailableSpace;
     SDL_Surface *surf;

@@ -29,12 +29,12 @@ Tile::MakeDoor(void) {
 }
 
 void
-Tile::AddObject(Room_Object robj) {
+Tile::AddObject(RoomObject::Type robj) {
     switch (robj) {
-        case STAIRS_UP:
+        case RoomObject::STAIRS_UP:
             surf = RSM::GetSurface("res/objects/stairs_up.png");
             break;
-        case STAIRS_DOWN:
+        case RoomObject::STAIRS_DOWN:
             surf = RSM::GetSurface("res/objects/stairs_down.png");
             break;
         default:

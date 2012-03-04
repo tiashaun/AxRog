@@ -37,7 +37,7 @@ class Room {
     Room* GetRoomInDirection(Direction d);
     void Travel(Direction d);
     void CentreCamera(void);
-    void AddObject(Room_Object robj);
+    void AddObject(RoomObject::Type robj);
     Tile* FindSpaceForObject(void);
     int CountExits(void);
 
@@ -46,7 +46,7 @@ class Room {
     SDL_Rect corridors[LAST_DIRECTION];
     Room *parent;
     SDL_Rect space;
-    std::vector<Room_Object> room_contents;
+    std::vector<RoomObject::Type> room_contents;
 
     private:
 };

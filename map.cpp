@@ -28,7 +28,7 @@ Map::Map(int w, int h, SDL_Surface *screen) {
     //This next bit is a bad case but lets be safe...
     if (this->lastroom == NULL) {
         lastroom = rooms;
-        rooms->AddObject(STAIRS_DOWN);
+        rooms->AddObject(RoomObject::STAIRS_DOWN);
     }
 
     CameraToRect(&rooms->space);
