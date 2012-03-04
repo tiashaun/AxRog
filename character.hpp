@@ -1,9 +1,9 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-class Character {
-    int max_health;
-    int curr_health;
+#include "entity.hpp"
+
+class Character : public Entity {
     int level;
     int XP;
 };
