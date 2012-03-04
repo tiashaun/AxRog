@@ -25,11 +25,11 @@ Map::Map(int w, int h, SDL_Surface *screen) {
 
     lastroom = NULL;
     rooms = new Room(this);
-    //This next bit is a bad case but lets be safe...
-    if (this->lastroom == NULL) {
-        lastroom = rooms;
-        rooms->AddObject(RoomObject::STAIRS_DOWN);
+    while (rooms->CountExits() == 0) {
+        delete rooms;
+        rooms = new Room(this);
     }
+    //This next bit is a bad case but lets be safe...
 
     party_marker = RSM::GetSurface("res/marker.png");
 
