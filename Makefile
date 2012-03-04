@@ -2,7 +2,7 @@ CFLAGS += -ggdb -O0
 OBJECTS=axrog.o tile.o room.o party.o character.o map.o game.o resource.o \
     entity.o character.o monster.o
 EXTRAHEADS=geometry.hpp enums.hpp
-LIBS=-lSDL -lSDL_image -lSDL_ttf -lm
+LIBS=-lSDL -lSDL_image
 CC=g++
 
 axrog: ${OBJECTS}
