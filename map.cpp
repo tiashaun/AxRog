@@ -31,6 +31,8 @@ Map::Map(int w, int h, SDL_Surface *screen) {
         rooms->AddObject(RoomObject::STAIRS_DOWN);
     }
 
+    party_marker = RSM::GetSurface("res/marker.png");
+
     CameraToRect(&rooms->space);
 }
 
@@ -216,4 +218,22 @@ Map::CameraToRect(SDL_Rect *r) {
     cam.y = ((r->y + r->h / 2) * TILE_SZ) - cam.h / 2;
     
     CameraClip();
+}
+
+void
+Map::DrawPartyMarker(SDL_Surface *surf, Room *r) {
+    SDL_Rect src;
+    SDL_Rect dest;
+
+    dest.x = (r->space.x * TILE_SZ) - cam.x;
+    dest.y = (r->space.y * TILE_SZ) - cam.y;
+    //Location is now at the room's beginning
+    //We need to centre out marker, though
+    dest.x += ((r->space.w * TILE_SZ) - party_marker->w) / 2;
+    dest.y += ((r->space.h * TILE_SZ) - party_marker->h) / 2;
+
+    if (dest.x > cam.w || dest.y > cam.w)
+        return;
+
+    SDL_BlitSurface(party_marker, NULL, surf, &dest);
 }

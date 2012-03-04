@@ -14,6 +14,7 @@ class Map {
     ~Map(void);
     Tile* GetTile(int x, int y);
     void DrawTo(SDL_Surface *surf);
+    void DrawPartyMarker(SDL_Surface *surf, Room *r);
     void SetCamera(int x, int y, int w, int h);
     void MoveCamera(int x, int y);
     void ApplyRoom(Room *r);
@@ -30,6 +31,7 @@ class Map {
     int height;
     SDL_Rect cam;
     Tile *tiles;
+    SDL_Surface *party_marker;
 
     private:
 };

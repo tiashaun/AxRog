@@ -6,6 +6,6 @@ namespace RoomObject {
         STAIRS_UP,
         STAIRS_DOWN
     } Type;
-}
+};
 
 #endif

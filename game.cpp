@@ -36,6 +36,7 @@ Game::Update(SDL_Surface *surf) {
 void
 Game::DrawTo(SDL_Surface *surf) {
     map->DrawTo(surf);
+    map->DrawPartyMarker(surf, party->location);
 }
 
 void
