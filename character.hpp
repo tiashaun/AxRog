@@ -14,7 +14,6 @@ class Character : public Entity {
     CharacterClass::Type    cclass;
     Species::Type           species;
     SDL_Surface             *portrait;
-    SDL_Surface             *combat_back;
 };
 
 #endif

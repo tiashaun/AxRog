@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "resource.hpp"
 
 #define CAMERA_SPEED    150
 #define FRAMERATE       20
@@ -17,6 +18,7 @@ Game::Game(SDL_Surface *screen) {
     this->needRedraw = true;
     this->lastupdate = 0;
     this->mode = GameMode::MOVEMENT;
+    this->splash_back = RSM::GetSurface("res/splash.png");
 }
 
 Game::~Game(void) {
@@ -62,7 +64,7 @@ Game::DrawCharacterScreen(SDL_Surface *surf) {
     rect.y = (surf->h - SPLASH_H) / 2;
     rect.w = SPLASH_W;
     rect.h = SPLASH_H;
-    SDL_FillRect(surf, &rect, 324423);
+    SDL_BlitSurface(this->splash_back, NULL, surf, &rect);
 
     dest.x = rect.x;
     dest.y = rect.y;

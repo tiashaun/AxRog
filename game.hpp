@@ -22,6 +22,7 @@ class Game {
     void HandleKeypressMovement(SDL_KeyboardEvent *key);
     void UpdateCharScreen(void);
 
+    SDL_Surface     *splash_back;
     GameMode::Type  mode;
     Map             *map;
     Party           *party;

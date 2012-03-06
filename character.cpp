@@ -4,6 +4,8 @@
 Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
     this->species = inSpecies;
     this->cclass = inClass;
+    this->level = 1;
+    this->XP = 0;
 
     // Basic attributes
     this->max_health = 30;
@@ -105,7 +107,4 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
             this->portrait = RSM::GetSurface("res/portraits/other.png");
             break;
     }
-
-    //Character's combat image
-    this->combat_back = RSM::GetSurface("res/combat_back/other.png");
 }

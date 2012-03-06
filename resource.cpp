@@ -1,4 +1,5 @@
 #include "resource.hpp"
+#include <iostream>
 #include <SDL/SDL_image.h>
 
 namespace RSM {
@@ -15,8 +16,14 @@ namespace RSM {
 
         //We need to load a new surface
 
-        r.filename = path;
         r.surface = IMG_Load( path.c_str() );
+
+        if (!r.surface) {
+            std::cout << "ERROR :: Loading surface '" << path << "'\n";
+            return NULL;
+        }
+
+        r.filename = path;
         surfaces.push_back(r);
 
         return r.surface;
@@ -31,6 +38,7 @@ namespace RSM {
         std::vector<Resource>::const_iterator it;
 
         for(it = surfaces.begin(); it != surfaces.end(); ++it)
-            SDL_FreeSurface(it->surface);
+            if (it->surface)
+                SDL_FreeSurface(it->surface);
     }
 }
