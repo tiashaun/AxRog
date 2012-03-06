@@ -13,7 +13,7 @@ FontHandler::Init(std::string path) {
 void
 FontHandler::WriteText(SDL_Surface *surf, SDL_Rect pos, std::string msg) {
     SDL_Surface *message;
-    message = TTF_RenderText_Solid( font, msg.c_str(), fontcolor );
+    message = TTF_RenderText_Blended( font, msg.c_str(), fontcolor );
     SDL_BlitSurface(message, NULL, surf, &pos);
     SDL_FreeSurface(message);
 }
