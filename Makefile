@@ -1,7 +1,6 @@
 CFLAGS += -ggdb -O0
 OBJECTS=axrog.o tile.o room.o party.o map.o game.o resource.o fonthandler.o \
-    entity.o character.o enemy.o item/item.o item/weapon.o item/helm.o\
-    item/misc.o
+    entity.o character.o enemy.o item.o weapon.o armour.o misc.o
 EXTRAHEADS=geometry.hpp enums.hpp
 LIBS=-lSDL -lSDL_image -lSDL_ttf
 CC=g++

@@ -4,10 +4,10 @@
 #include <SDL/SDL.h>
 #include "entity.hpp"
 #include "enums.hpp"
-#include "item/weapon.hpp"
-#include "item/helm.hpp"
-#include "item/armour.hpp"
-#include "item/misc.hpp"
+#include "weapon.hpp"
+#include "helm.hpp"
+#include "armour.hpp"
+#include "misc.hpp"
 
 class Character : public Entity {
     public:
@@ -22,9 +22,10 @@ class Character : public Entity {
     Species::Type           species;
     SDL_Surface             *portrait;
 
-    Helm                    *helm;
-    Weapon                  *weapon;
-    Armour                  *armour;
+    Helm                    *head;
+    Armour                  *body;
+    Item                    *left;
+    Item                    *right;
     Misc                    *misc1;
     Misc                    *misc2;
 };

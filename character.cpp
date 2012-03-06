@@ -2,6 +2,9 @@
 #include "resource.hpp"
 #include "fonthandler.hpp"
 
+#define PARTY_SCREEN_COLUMN_WIDTH   24
+#define PARTY_SCREEN_COLUMN_OFFSET  6
+
 #include <sstream>
 
 Character::Character(std::string name, Species::Type inSpecies,
@@ -12,9 +15,10 @@ Character::Character(std::string name, Species::Type inSpecies,
     this->level = 1;
     this->XP = 0;
 
-    this->helm = NULL;
-    this->weapon = NULL;
-    this->armour = NULL;
+    this->head = NULL;
+    this->body = NULL;
+    this->left = NULL;
+    this->right = NULL;
     this->misc1 = NULL;
     this->misc2 = NULL;
 
@@ -177,9 +181,9 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     else
         class_str = "";
 
-    //First block of text
+    //First block of text is personal info
     relative = dest;
-    relative.x += 6 * BLOCK_SIZE;
+    relative.x += PARTY_SCREEN_COLUMN_OFFSET * BLOCK_SIZE;
     FontHandler::WriteText(surf, relative, this->name);
     relative.y += BLOCK_SIZE;
     FontHandler::WriteText(surf, relative, species_str + " " + class_str);
@@ -201,9 +205,9 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     ss << "MP: " << this->curr_mp << "/" << this->max_mp;
     FontHandler::WriteText(surf, relative, ss.str());
 
-    //Second block of text
+    //Second block of text is stats
     relative = dest;
-    relative.x += 24 * BLOCK_SIZE;
+    relative.x += (PARTY_SCREEN_COLUMN_OFFSET + PARTY_SCREEN_COLUMN_WIDTH) * BLOCK_SIZE;
     relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "Att: " << this->str;
@@ -227,6 +231,58 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "Spd: " << this->spd;
+    FontHandler::WriteText(surf, relative, ss.str());
+
+    //Third block of text is equipment
+    relative = dest;
+    relative.x += PARTY_SCREEN_COLUMN_WIDTH * BLOCK_SIZE * 2;
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Head:  ";
+    if (this->head)
+        ss << this->head->name;
+    else
+        ss << "None";
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Body:  ";
+    if (this->body)
+        ss << this->body->name;
+    else
+        ss << "None";
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Left:  ";
+    if (this->left)
+        ss << this->left->name;
+    else
+        ss << "None";
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Right: ";
+    if (this->right)
+        ss << this->right->name;
+    else
+        ss << "None";
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Misc:  ";
+    if (this->misc1)
+        ss << this->misc1->name;
+    else
+        ss << "None";
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Misc:  ";
+    if (this->misc2)
+        ss << this->misc2->name;
+    else
+        ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());
 }
 
