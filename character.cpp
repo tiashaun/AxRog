@@ -108,3 +108,8 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
             break;
     }
 }
+
+void
+Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect *dest) {
+    SDL_BlitSurface(this->portrait, NULL, surf, dest);
+}

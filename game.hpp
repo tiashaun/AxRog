@@ -14,7 +14,6 @@ class Game {
     void Update(SDL_Surface *surf);
     void DrawTo(SDL_Surface *surf);
     void DrawPartyScreen(SDL_Surface *surf);
-    void DrawPartyScreenCharLine(SDL_Surface *surf, SDL_Rect *dest, Character *c);
     void FramePause(void);
     void HandleInput(SDL_Event *e);
     void HandleKeypressAll(SDL_KeyboardEvent *key);

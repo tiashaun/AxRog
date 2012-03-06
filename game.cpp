@@ -58,6 +58,7 @@ void
 Game::DrawPartyScreen(SDL_Surface *surf) {
     SDL_Rect rect;
     SDL_Rect dest;
+    Character *c;
 
     //Fill the area with background first
     rect.x = (surf->w - SPLASH_W) / 2;
@@ -72,16 +73,11 @@ Game::DrawPartyScreen(SDL_Surface *surf) {
     dest.h = SPLASH_H / MAX_PARTY_SIZE;
 
     for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
-        if(this->party->characters[i])
-            DrawPartyScreenCharLine(surf, &dest, this->party->characters[i]);
+        c = this->party->characters[i];
+        if(c)
+            c->DrawPartyScreenLine(surf, &dest);
         dest.y += dest.h;
     }
-}
-
-void
-Game::DrawPartyScreenCharLine(SDL_Surface *surf, SDL_Rect *dest, Character *c) {
-    SDL_BlitSurface(c->portrait, NULL, surf, dest);
-
 }
 
 void
