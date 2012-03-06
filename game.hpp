@@ -22,6 +22,7 @@ class Game {
     void UpdateCharScreen(void);
 
     SDL_Surface     *splash_back;
+    SDL_Surface     *portrait_frame;
     GameMode::Type  mode;
     Map             *map;
     Party           *party;

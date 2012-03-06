@@ -19,6 +19,7 @@ Game::Game(SDL_Surface *screen) {
     this->lastupdate = 0;
     this->mode = GameMode::MOVEMENT;
     this->splash_back = RSM::GetSurface("res/splash.png");
+    this->portrait_frame = RSM::GetSurface("res/portrait_frame.png");
 }
 
 Game::~Game(void) {
@@ -74,8 +75,13 @@ Game::DrawPartyScreen(SDL_Surface *surf) {
 
     for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
         c = this->party->characters[i];
-        if(c)
+        if(c) {
             c->DrawPartyScreenLine(surf, &dest);
+            SDL_BlitSurface(this->portrait_frame, NULL, surf, &dest);
+        }
+        else
+            SDL_FillRect(surf, &dest, 9999999);
+
         dest.y += dest.h;
     }
 }
