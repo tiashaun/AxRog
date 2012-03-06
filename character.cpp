@@ -88,6 +88,24 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
     this->curr_health = this->max_health;
 
     //Load portraits
-    this->portrait = RSM::GetSurface("res/portraits/other.png");
+    switch (this->cclass) {
+        case CharacterClass::FIGHTER :
+            this->portrait = RSM::GetSurface("res/portraits/bas_fighter.png");
+            break;
+        case CharacterClass::ROGUE :
+            this->portrait = RSM::GetSurface("res/portraits/bas_rogue.png");
+            break;
+        case CharacterClass::CLERIC :
+            this->portrait = RSM::GetSurface("res/portraits/bas_cleric.png");
+            break;
+        case CharacterClass::WIZARD :
+            this->portrait = RSM::GetSurface("res/portraits/bas_wizard.png");
+            break;
+        default:
+            this->portrait = RSM::GetSurface("res/portraits/other.png");
+            break;
+    }
+
+    //Character's combat image
     this->combat_back = RSM::GetSurface("res/combat_back/other.png");
 }

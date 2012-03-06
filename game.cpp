@@ -3,6 +3,9 @@
 #define CAMERA_SPEED    150
 #define FRAMERATE       20
 
+#define SPLASH_W        1024
+#define SPLASH_H        600
+
 Game::Game(SDL_Surface *screen) {
     this->map = new Map(60, 60, screen);
     this->party = new Party();
@@ -51,14 +54,32 @@ Game::DrawTo(SDL_Surface *surf) {
 
 void
 Game::DrawCharacterScreen(SDL_Surface *surf) {
+    SDL_Rect rect;
     SDL_Rect dest;
 
-    dest.x = (surf->w - 1024) / 2;
-    dest.y = (surf->h - 600) / 2;
-    dest.w = 1024;
-    dest.h = 600;
+    //Fill the area with background first
+    rect.x = (surf->w - SPLASH_W) / 2;
+    rect.y = (surf->h - SPLASH_H) / 2;
+    rect.w = SPLASH_W;
+    rect.h = SPLASH_H;
+    SDL_FillRect(surf, &rect, 324423);
 
-    SDL_FillRect(surf, &dest, 324423);
+    dest.x = rect.x;
+    dest.y = rect.y;
+    dest.w = SPLASH_W;
+    dest.h = SPLASH_H / MAX_PARTY_SIZE;
+
+    for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
+        if(this->party->characters[i])
+            DrawCharacterScreenLine(surf, &dest, this->party->characters[i]);
+        dest.y += dest.h;
+    }
+}
+
+void
+Game::DrawCharacterScreenLine(SDL_Surface *surf, SDL_Rect *dest, Character *c) {
+    SDL_BlitSurface(c->portrait, NULL, surf, dest);
+
 }
 
 void
