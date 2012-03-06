@@ -12,6 +12,12 @@ Character::Character(std::string name, Species::Type inSpecies,
     this->level = 1;
     this->XP = 0;
 
+    this->helm = NULL;
+    this->weapon = NULL;
+    this->armour = NULL;
+    this->misc1 = NULL;
+    this->misc2 = NULL;
+
     // Basic attributes
     this->max_hp = 30;
     this->max_mp = 0;
@@ -222,4 +228,21 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     ss.str("");
     ss << "Spd: " << this->spd;
     FontHandler::WriteText(surf, relative, ss.str());
+}
+
+Character::~Character(void) {
+    // The portrait is freed by the resource manager
+
+    // Not sure how items are going to be handled so this is tentatice
+
+    // if (this->helm)
+    //     delete helm;
+    // if (this->weapon)
+    //     delete helm;
+    // if (this->armour)
+    //     delete helm;
+    // if (this->misc1)
+    //     delete helm;
+    // if (this->misc2)
+    //     delete helm;
 }
