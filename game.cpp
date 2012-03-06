@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include "resource.hpp"
+#include "fonthandler.hpp"
 
 #define CAMERA_SPEED    150
 #define FRAMERATE       20
@@ -59,6 +60,7 @@ void
 Game::DrawPartyScreen(SDL_Surface *surf) {
     SDL_Rect rect;
     SDL_Rect dest;
+    SDL_Rect relative;
     Character *c;
 
     //Fill the area with background first
@@ -78,12 +80,16 @@ Game::DrawPartyScreen(SDL_Surface *surf) {
         if(c) {
             c->DrawPartyScreenLine(surf, &dest);
             SDL_BlitSurface(this->portrait_frame, NULL, surf, &dest);
+            relative = dest;
+            relative.x += 65;
+            FontHandler::WriteText(surf, relative, c->name);
         }
         else
             SDL_FillRect(surf, &dest, 9999999);
 
         dest.y += dest.h;
     }
+
 }
 
 void

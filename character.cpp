@@ -19,8 +19,10 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
     // Attribute modifiers come from species
     switch (this->species) {
         case Species::HUMAN :
+            this->name = "John Doe";
             break;
         case Species::ELF :
+            this->name = "Leoric";
             this->max_health -= 5;
             this->att += 1;
             this->def += 1;
@@ -28,11 +30,13 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
             this->spd += 2;
             break;
         case Species::HALF_ELF :
+            this->name = "Liamund";
             this->max_health -= 2;
             this->tou -= 1;
             this->spd += 1;
             break;
         case Species::ORC :
+            this->name = "Grosk";
             this->att += 1;
             this->str += 2;
             this->tou += 1;

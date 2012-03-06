@@ -1,6 +1,7 @@
 #include <SDL/SDL.h>
 #include "game.hpp"
 #include "resource.hpp"
+#include "fonthandler.hpp"
 
 static int SCREEN_WIDTH;
 static int SCREEN_HEIGHT;
@@ -45,6 +46,9 @@ int main(int argc, char **argv) {
     SDL_EnableKeyRepeat(300, 50);
     SDL_WM_SetCaption("Ax Rogue", NULL);
     screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_HWSURFACE );
+
+    RSM::Init();
+    FontHandler::Init(std::string("res/Font.ttf"));
 
     game = new Game(screen);
     while ( game->isRunning() ) {

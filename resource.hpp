@@ -11,10 +11,11 @@ struct Resource {
 };
 
 namespace RSM {
-    static std::vector<Resource> surfaces;
     SDL_Surface* GetSurface(std::string path);
     void Init(void);
     void CleanUp(void);
+
+    static std::vector<Resource> surfaces;
 };
 
 #endif
