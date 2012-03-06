@@ -46,8 +46,8 @@ Game::DrawTo(SDL_Surface *surf) {
             map->DrawTo(surf);
             map->DrawPartyMarker(surf, party->location);
             break;
-        case GameMode::CHAR_SCREEN :
-            this->DrawCharacterScreen(surf);
+        case GameMode::PARTY_SCREEN :
+            this->DrawPartyScreen(surf);
             break;
         default:
             break;
@@ -55,7 +55,7 @@ Game::DrawTo(SDL_Surface *surf) {
 }
 
 void
-Game::DrawCharacterScreen(SDL_Surface *surf) {
+Game::DrawPartyScreen(SDL_Surface *surf) {
     SDL_Rect rect;
     SDL_Rect dest;
 
@@ -73,13 +73,13 @@ Game::DrawCharacterScreen(SDL_Surface *surf) {
 
     for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
         if(this->party->characters[i])
-            DrawCharacterScreenLine(surf, &dest, this->party->characters[i]);
+            DrawPartyScreenCharLine(surf, &dest, this->party->characters[i]);
         dest.y += dest.h;
     }
 }
 
 void
-Game::DrawCharacterScreenLine(SDL_Surface *surf, SDL_Rect *dest, Character *c) {
+Game::DrawPartyScreenCharLine(SDL_Surface *surf, SDL_Rect *dest, Character *c) {
     SDL_BlitSurface(c->portrait, NULL, surf, dest);
 
 }
@@ -115,7 +115,7 @@ void
 Game::HandleKeypressAll(SDL_KeyboardEvent *key) {
     if (this->mode == GameMode::MOVEMENT)
         HandleKeypressMovement(key);
-    else if (this->mode == GameMode::CHAR_SCREEN)
+    else if (this->mode == GameMode::PARTY_SCREEN)
         HandleKeypressCharScreen(key);
 }
 
@@ -169,9 +169,9 @@ Game::HandleKeypressMovement(SDL_KeyboardEvent *key) {
             party->Travel(EAST);
             needRedraw = true;
             break;
-        case SDLK_c:
+        case SDLK_p:
             this->UpdateCharScreen();
-            this->mode = GameMode::CHAR_SCREEN;
+            this->mode = GameMode::PARTY_SCREEN;
             needRedraw = true;
             break;
         default:

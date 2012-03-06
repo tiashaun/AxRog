@@ -13,8 +13,8 @@ class Game {
     bool isRunning(void);
     void Update(SDL_Surface *surf);
     void DrawTo(SDL_Surface *surf);
-    void DrawCharacterScreen(SDL_Surface *surf);
-    void DrawCharacterScreenLine(SDL_Surface *surf, SDL_Rect *dest, Character *c);
+    void DrawPartyScreen(SDL_Surface *surf);
+    void DrawPartyScreenCharLine(SDL_Surface *surf, SDL_Rect *dest, Character *c);
     void FramePause(void);
     void HandleInput(SDL_Event *e);
     void HandleKeypressAll(SDL_KeyboardEvent *key);

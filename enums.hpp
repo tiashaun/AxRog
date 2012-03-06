@@ -4,7 +4,7 @@
 namespace GameMode {
     typedef enum {
         MOVEMENT,
-        CHAR_SCREEN,
+        PARTY_SCREEN,
     } Type;
 };
 
