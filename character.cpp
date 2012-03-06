@@ -142,6 +142,7 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     std::stringstream ss;
     std::string species_str;
     std::string class_str;
+    SDL_Rect relative;
     SDL_BlitSurface(this->portrait, NULL, surf, &dest);
 
     //Race string
@@ -170,25 +171,55 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     else
         class_str = "";
 
-    dest.x += 6 * BLOCK_SIZE;
-    FontHandler::WriteText(surf, dest, this->name);
-    dest.y += BLOCK_SIZE;
-    FontHandler::WriteText(surf, dest, species_str + " " + class_str);
-    dest.y += BLOCK_SIZE;
+    //First block of text
+    relative = dest;
+    relative.x += 6 * BLOCK_SIZE;
+    FontHandler::WriteText(surf, relative, this->name);
+    relative.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, relative, species_str + " " + class_str);
+    relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "Level: " << this->level;
-    FontHandler::WriteText(surf, dest, ss.str());
-    dest.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "XP: " << this->XP;
-    FontHandler::WriteText(surf, dest, ss.str());
-    dest.y += BLOCK_SIZE;
-    dest.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "HP: " << this->curr_hp << "/" << this->max_hp;
-    FontHandler::WriteText(surf, dest, ss.str());
-    dest.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "MP: " << this->curr_mp << "/" << this->max_mp;
-    FontHandler::WriteText(surf, dest, ss.str());
+    FontHandler::WriteText(surf, relative, ss.str());
+
+    //Second block of text
+    relative = dest;
+    relative.x += 24 * BLOCK_SIZE;
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Att: " << this->str;
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Def: " << this->def;
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Str: " << this->str;
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Tou: " << this->tou;
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Wil: " << this->wil;
+    FontHandler::WriteText(surf, relative, ss.str());
+    relative.y += BLOCK_SIZE;
+    ss.str("");
+    ss << "Spd: " << this->spd;
+    FontHandler::WriteText(surf, relative, ss.str());
 }
