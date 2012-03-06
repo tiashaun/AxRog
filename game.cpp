@@ -7,6 +7,7 @@
 
 #define SPLASH_W        1024
 #define SPLASH_H        600
+#define BLOCK_SIZE      12
 
 Game::Game(SDL_Surface *screen) {
     this->map = new Map(60, 60, screen);
@@ -81,8 +82,19 @@ Game::DrawPartyScreen(SDL_Surface *surf) {
             c->DrawPartyScreenLine(surf, &dest);
             SDL_BlitSurface(this->portrait_frame, NULL, surf, &dest);
             relative = dest;
-            relative.x += 65;
+            relative.x += 6 * BLOCK_SIZE;
             FontHandler::WriteText(surf, relative, c->name);
+            relative.y += BLOCK_SIZE;
+            FontHandler::WriteText(surf, relative, "Raceish Class");
+            relative.y += BLOCK_SIZE;
+            FontHandler::WriteText(surf, relative, "Level: 1");
+            relative.y += BLOCK_SIZE;
+            FontHandler::WriteText(surf, relative, "XP: 0");
+            relative.y += BLOCK_SIZE;
+            relative.y += BLOCK_SIZE;
+            FontHandler::WriteText(surf, relative, "HP: 99/99");
+            relative.y += BLOCK_SIZE;
+            FontHandler::WriteText(surf, relative, "MP: 0/0");
         }
         else
             SDL_FillRect(surf, &dest, 9999999);

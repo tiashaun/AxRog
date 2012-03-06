@@ -8,8 +8,10 @@ class Entity {
     Entity(void);
 
     std::string name;
-    int max_health;
-    int curr_health;
+    int max_hp;
+    int curr_hp;
+    int max_mp;
+    int curr_mp;
     int att;
     int def;
     int str;
