@@ -1,5 +1,6 @@
 #include "character.hpp"
 #include "resource.hpp"
+#include "fonthandler.hpp"
 
 Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
     this->species = inSpecies;
@@ -124,6 +125,20 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
 }
 
 void
-Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect *dest) {
-    SDL_BlitSurface(this->portrait, NULL, surf, dest);
+Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
+    SDL_BlitSurface(this->portrait, NULL, surf, &dest);
+
+    dest.x += 6 * BLOCK_SIZE;
+    FontHandler::WriteText(surf, dest, this->name);
+    dest.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, dest, "Raceish Class");
+    dest.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, dest, "Level: 1");
+    dest.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, dest, "XP: 0");
+    dest.y += BLOCK_SIZE;
+    dest.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, dest, "HP: 99/99");
+    dest.y += BLOCK_SIZE;
+    FontHandler::WriteText(surf, dest, "MP: 0/0");
 }

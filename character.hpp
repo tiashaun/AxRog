@@ -8,7 +8,7 @@
 class Character : public Entity {
     public:
     Character(Species::Type inSpecies, CharacterClass::Type inClass);
-    void DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect *dest);
+    void DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest);
 
     int                     level;
     int                     XP;
