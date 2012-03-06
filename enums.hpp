@@ -8,4 +8,14 @@ namespace RoomObject {
     } Type;
 };
 
+namespace CharacterClass {
+    typedef enum {
+        FIGHTER,
+        WIZARD,
+        CLERIC,
+        ROGUE,
+        LAST_CLASS,
+    } Type;
+};
+
 #endif
