@@ -19,8 +19,8 @@ Character::Character(std::string name, Species::Type inSpecies,
     this->body = NULL;
     this->left = NULL;
     this->right = NULL;
-    this->misc1 = NULL;
-    this->misc2 = NULL;
+    this->feet = NULL;
+    this->misc = NULL;
 
     // Basic attributes
     this->max_hp = 30;
@@ -183,7 +183,7 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
 
     //First block of text is personal info
     relative = dest;
-    relative.x += PARTY_SCREEN_COLUMN_OFFSET * BLOCK_SIZE;
+    relative.x += 6 * BLOCK_SIZE;
     FontHandler::WriteText(surf, relative, this->name);
     relative.y += BLOCK_SIZE;
     FontHandler::WriteText(surf, relative, species_str + " " + class_str);
@@ -207,7 +207,7 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
 
     //Second block of text is stats
     relative = dest;
-    relative.x += (PARTY_SCREEN_COLUMN_OFFSET + PARTY_SCREEN_COLUMN_WIDTH) * BLOCK_SIZE;
+    relative.x += 20 * BLOCK_SIZE;
     relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "Att: " << this->str;
@@ -235,7 +235,7 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
 
     //Third block of text is equipment
     relative = dest;
-    relative.x += PARTY_SCREEN_COLUMN_WIDTH * BLOCK_SIZE * 2;
+    relative.x += 28 * BLOCK_SIZE;
     relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "Head:  ";
@@ -270,17 +270,17 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Misc:  ";
-    if (this->misc1)
-        ss << this->misc1->name;
+    ss << "Feet:  ";
+    if (this->feet)
+        ss << this->feet->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "Misc:  ";
-    if (this->misc2)
-        ss << this->misc2->name;
+    if (this->misc)
+        ss << this->misc->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());

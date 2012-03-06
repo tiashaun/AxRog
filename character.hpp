@@ -8,6 +8,7 @@
 #include "helm.hpp"
 #include "armour.hpp"
 #include "misc.hpp"
+#include "boots.hpp"
 
 class Character : public Entity {
     public:
@@ -26,8 +27,8 @@ class Character : public Entity {
     Armour                  *body;
     Item                    *left;
     Item                    *right;
-    Misc                    *misc1;
-    Misc                    *misc2;
+    Boots                   *feet;
+    Misc                    *misc;
 };
 
 #endif

@@ -1,5 +1,5 @@
 #include "item.hpp"
 
-// Item::Item(void) {
+// Item::Item() {
 //     this->name = std::string("");
 // }

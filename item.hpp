@@ -5,7 +5,9 @@
 
 class Item {
     public:
-    // Item(void);
+    Item(char *name) {
+        this->name = name;
+    }
 
     int value;
     std::string name;
