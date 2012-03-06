@@ -13,6 +13,8 @@ namespace RSM {
                 return it->surface;
         }
 
+        //We need to load a new surface
+
         r.filename = path;
         r.surface = IMG_Load( path.c_str() );
         surfaces.push_back(r);

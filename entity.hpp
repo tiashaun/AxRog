@@ -5,10 +5,12 @@ class Entity {
     public:
     int max_health;
     int curr_health;
-    int strength;
-    int toughness;
-    int attack;
-    int defense;
+    int att;
+    int def;
+    int str;
+    int tou;
+    int wil;
+    int spd;
 };
 
 #endif

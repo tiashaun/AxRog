@@ -7,14 +7,14 @@
 
 class Character : public Entity {
     public:
+    Character(Species::Type inSpecies, CharacterClass::Type inClass);
 
-    Character(void);
-
-    int level;
-    int XP;
-    CharacterClass::Type cclass;
-    SDL_Surface *portrait;
-    SDL_Surface *combat_back;
+    int                     level;
+    int                     XP;
+    CharacterClass::Type    cclass;
+    Species::Type           species;
+    SDL_Surface             *portrait;
+    SDL_Surface             *combat_back;
 };
 
 #endif

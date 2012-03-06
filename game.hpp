@@ -13,16 +13,21 @@ class Game {
     bool isRunning(void);
     void Update(SDL_Surface *surf);
     void DrawTo(SDL_Surface *surf);
+    void DrawCharacterScreen(SDL_Surface *surf);
     void FramePause(void);
     void HandleInput(SDL_Event *e);
-    void HandleKeypress(SDL_KeyboardEvent *key);
+    void HandleKeypressAll(SDL_KeyboardEvent *key);
+    void HandleKeypressCharScreen(SDL_KeyboardEvent *key);
+    void HandleKeypressMovement(SDL_KeyboardEvent *key);
+    void UpdateCharScreen(void);
 
-    Map *map;
-    Party *party;
-    bool running;
-    bool needRedraw;
-    int framedelay;
-    int lastupdate;
+    GameMode::Type  mode;
+    Map             *map;
+    Party           *party;
+    bool            running;
+    bool            needRedraw;
+    int             framedelay;
+    int             lastupdate;
 };
 
 #endif

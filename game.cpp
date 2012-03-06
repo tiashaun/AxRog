@@ -4,15 +4,16 @@
 #define FRAMERATE       20
 
 Game::Game(SDL_Surface *screen) {
-    map = new Map(60, 60, screen);
-    party = new Party();
+    this->map = new Map(60, 60, screen);
+    this->party = new Party();
 
-    party->SetLocation(map->rooms);
+    this->party->SetLocation(map->rooms);
 
-    framedelay = 1000/FRAMERATE;
-    running = true;
-    needRedraw = true;
-    lastupdate = 0;
+    this->framedelay = 1000/FRAMERATE;
+    this->running = true;
+    this->needRedraw = true;
+    this->lastupdate = 0;
+    this->mode = GameMode::MOVEMENT;
 }
 
 Game::~Game(void) {
@@ -35,8 +36,29 @@ Game::Update(SDL_Surface *surf) {
 
 void
 Game::DrawTo(SDL_Surface *surf) {
-    map->DrawTo(surf);
-    map->DrawPartyMarker(surf, party->location);
+    switch (this->mode) {
+        case GameMode::MOVEMENT :
+            map->DrawTo(surf);
+            map->DrawPartyMarker(surf, party->location);
+            break;
+        case GameMode::CHAR_SCREEN :
+            this->DrawCharacterScreen(surf);
+            break;
+        default:
+            break;
+    }
+}
+
+void
+Game::DrawCharacterScreen(SDL_Surface *surf) {
+    SDL_Rect dest;
+
+    dest.x = (surf->w - 1024) / 2;
+    dest.y = (surf->h - 600) / 2;
+    dest.w = 1024;
+    dest.h = 600;
+
+    SDL_FillRect(surf, &dest, 324423);
 }
 
 void
@@ -55,7 +77,7 @@ Game::HandleInput(SDL_Event *e) {
     while ( SDL_PollEvent(e) ) {
         switch (e->type) {
             case SDL_KEYDOWN:
-                HandleKeypress(&e->key);
+                HandleKeypressAll(&e->key);
                 break;
             case SDL_KEYUP:
                 break;
@@ -67,7 +89,27 @@ Game::HandleInput(SDL_Event *e) {
 }
 
 void
-Game::HandleKeypress(SDL_KeyboardEvent *key) {
+Game::HandleKeypressAll(SDL_KeyboardEvent *key) {
+    if (this->mode == GameMode::MOVEMENT)
+        HandleKeypressMovement(key);
+    else if (this->mode == GameMode::CHAR_SCREEN)
+        HandleKeypressCharScreen(key);
+}
+
+void
+Game::HandleKeypressCharScreen(SDL_KeyboardEvent *key) {
+    switch(key->keysym.sym) {
+        case SDLK_ESCAPE :
+            this->mode = GameMode::MOVEMENT;
+            needRedraw = true;
+            return;
+        default:
+            break;
+    }
+}
+
+void
+Game::HandleKeypressMovement(SDL_KeyboardEvent *key) {
     switch(key->keysym.sym) {
         case SDLK_ESCAPE:
             running = 0;
@@ -104,7 +146,17 @@ Game::HandleKeypress(SDL_KeyboardEvent *key) {
             party->Travel(EAST);
             needRedraw = true;
             break;
+        case SDLK_c:
+            this->UpdateCharScreen();
+            this->mode = GameMode::CHAR_SCREEN;
+            needRedraw = true;
+            break;
         default:
             break;
     }
+}
+
+void
+Game::UpdateCharScreen(void) {
+    
 }
