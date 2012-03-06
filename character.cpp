@@ -2,9 +2,11 @@
 #include "resource.hpp"
 #include "fonthandler.hpp"
 
-Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
+Character::Character(std::string name, Species::Type inSpecies,
+                                            CharacterClass::Type inClass) {
     this->species = inSpecies;
     this->cclass = inClass;
+    this->name = name;
     this->level = 1;
     this->XP = 0;
 
@@ -67,10 +69,8 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
     // Attribute modifiers come from species
     switch (this->species) {
         case Species::HUMAN :
-            this->name = "John Doe";
             break;
         case Species::ELF :
-            this->name = "Leoric";
             this->max_hp -= 5;
             this->att += 1;
             this->def += 1;
@@ -80,7 +80,6 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
                 max_mp += 5;
             break;
         case Species::HALF_ELF :
-            this->name = "Liamund";
             this->max_hp -= 2;
             this->tou -= 1;
             this->spd += 1;
@@ -88,7 +87,6 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
                 max_mp += 2;
             break;
         case Species::ORC :
-            this->name = "Grosk";
             this->att += 1;
             this->str += 2;
             this->tou += 1;
@@ -126,12 +124,38 @@ Character::Character(Species::Type inSpecies, CharacterClass::Type inClass) {
 
 void
 Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
+    std::string species_str;
+    std::string class_str;
     SDL_BlitSurface(this->portrait, NULL, surf, &dest);
+
+    //Race string
+    if (this->species == Species::HUMAN)
+        species_str = "Human";
+    else if (this->species == Species::ELF)
+        species_str = "Elven";
+    else if (this->species == Species::HALF_ELF)
+        species_str = "Helf-Elven";
+    else if (this->species == Species::ORC)
+        species_str = "Orcish";
+    else
+        species_str = "";
+
+    //Class string
+    if (this->cclass == CharacterClass::FIGHTER)
+        class_str = "Fighter";
+    else if (this->cclass == CharacterClass::ROGUE)
+        class_str = "Rogue";
+    else if (this->cclass == CharacterClass::CLERIC)
+        class_str = "Cleric";
+    else if (this->cclass == CharacterClass::WIZARD)
+        class_str = "Wizard";
+    else
+        class_str = "";
 
     dest.x += 6 * BLOCK_SIZE;
     FontHandler::WriteText(surf, dest, this->name);
     dest.y += BLOCK_SIZE;
-    FontHandler::WriteText(surf, dest, "Raceish Class");
+    FontHandler::WriteText(surf, dest, species_str + " " + class_str);
     dest.y += BLOCK_SIZE;
     FontHandler::WriteText(surf, dest, "Level: 1");
     dest.y += BLOCK_SIZE;
