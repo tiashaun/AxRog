@@ -2,6 +2,8 @@
 #include "resource.hpp"
 #include "fonthandler.hpp"
 
+#include <sstream>
+
 Character::Character(std::string name, Species::Type inSpecies,
                                             CharacterClass::Type inClass) {
     this->species = inSpecies;
@@ -124,6 +126,7 @@ Character::Character(std::string name, Species::Type inSpecies,
 
 void
 Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
+    std::stringstream ss;
     std::string species_str;
     std::string class_str;
     SDL_BlitSurface(this->portrait, NULL, surf, &dest);
@@ -157,12 +160,20 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     dest.y += BLOCK_SIZE;
     FontHandler::WriteText(surf, dest, species_str + " " + class_str);
     dest.y += BLOCK_SIZE;
-    FontHandler::WriteText(surf, dest, "Level: 1");
+    ss.str("");
+    ss << "Level: " << this->level;
+    FontHandler::WriteText(surf, dest, ss.str());
     dest.y += BLOCK_SIZE;
-    FontHandler::WriteText(surf, dest, "XP: 0");
+    ss.str("");
+    ss << "XP: " << this->XP;
+    FontHandler::WriteText(surf, dest, ss.str());
     dest.y += BLOCK_SIZE;
     dest.y += BLOCK_SIZE;
-    FontHandler::WriteText(surf, dest, "HP: 99/99");
+    ss.str("");
+    ss << "HP: " << this->curr_hp << "/" << this->max_hp;
+    FontHandler::WriteText(surf, dest, ss.str());
     dest.y += BLOCK_SIZE;
-    FontHandler::WriteText(surf, dest, "MP: 0/0");
+    ss.str("");
+    ss << "MP: " << this->curr_mp << "/" << this->max_mp;
+    FontHandler::WriteText(surf, dest, ss.str());
 }
