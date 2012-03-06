@@ -4,11 +4,11 @@
 Party::Party(void) {
     loc_indicator = RSM::GetSurface("res/marker.png");
 
-    characters[0] = new Character("Grosk", Species::ORC, CharacterClass::FIGHTER);
-    characters[1] = new Character("John Doe", Species::HUMAN, CharacterClass::CLERIC);
-    characters[2] = new Character("Leoric", Species::HALF_ELF, CharacterClass::ROGUE);
-    characters[3] = new Character("Sothwyr", Species::ELF, CharacterClass::WIZARD);
-    characters[4] = NULL;
+    characters[0] = new Character("Sir William", Species::HUMAN, CharacterClass::PALADIN);
+    characters[1] = new Character("Grosk", Species::ORC, CharacterClass::FIGHTER);
+    characters[2] = new Character("Marcus Lightburn", Species::HUMAN, CharacterClass::CLERIC);
+    characters[3] = new Character("Leoric", Species::HALF_ELF, CharacterClass::ROGUE);
+    characters[4] = new Character("Sothwyr", Species::ELF, CharacterClass::WIZARD);
     characters[5] = NULL;
 }
 

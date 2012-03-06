@@ -21,6 +21,7 @@ namespace CharacterClass {
         ROGUE,
         CLERIC,
         WIZARD,
+        PALADIN,
         LAST_CLASS,
     } Type;
 };

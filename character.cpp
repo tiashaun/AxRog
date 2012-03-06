@@ -31,7 +31,7 @@ Character::Character(std::string name, Species::Type inSpecies,
             this->str += 5;
             this->tou += 5;
             // this->wil += 0;
-            this->spd += 0;
+            // this->spd += 0;
             break;
         case CharacterClass::ROGUE :
             this->max_hp += 5;
@@ -61,9 +61,18 @@ Character::Character(std::string name, Species::Type inSpecies,
             this->str += 0;
             this->tou += 0;
             this->wil += 10;
-            this->spd += 0;
+            // this->spd += 0;
             //TODO: Add basic spells
             break;
+        case CharacterClass::PALADIN :
+            this->max_hp += 7;
+            this->max_mp = 5;
+            this->att += 4;
+            this->def += 2;
+            this->str += 4;
+            this->tou += 4;
+            this->wil += 4;
+            // this->spd += 0;
         default:
             break;
     }
@@ -89,6 +98,7 @@ Character::Character(std::string name, Species::Type inSpecies,
                 max_mp += 2;
             break;
         case Species::ORC :
+            this->max_hp += 2;
             this->att += 1;
             this->str += 2;
             this->tou += 1;
@@ -117,6 +127,9 @@ Character::Character(std::string name, Species::Type inSpecies,
             break;
         case CharacterClass::WIZARD :
             this->portrait = RSM::GetSurface("res/portraits/bas_wizard.png");
+            break;
+        case CharacterClass::PALADIN :
+            this->portrait = RSM::GetSurface("res/portraits/bas_paladin.png");
             break;
         default:
             this->portrait = RSM::GetSurface("res/portraits/other.png");
@@ -152,6 +165,8 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
         class_str = "Cleric";
     else if (this->cclass == CharacterClass::WIZARD)
         class_str = "Wizard";
+    else if (this->cclass == CharacterClass::PALADIN)
+        class_str = "Paladin";
     else
         class_str = "";
 
