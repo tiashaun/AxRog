@@ -89,6 +89,29 @@ Character::Character(std::string name, Species::Type inSpecies,
             break;
     }
 
+    //Startign equipment
+    switch(this->cclass) {
+        case CharacterClass::PALADIN :
+        case CharacterClass::FIGHTER :
+            this->weapon = Equippable::GetItem("Longsword");
+            this->armour = Equippable::GetItem("Chainmail");
+            break;
+        case CharacterClass::ROGUE :
+            this->weapon = Equippable::GetItem("Shortsword");
+            this->armour = Equippable::GetItem("Leather Armour");
+            break;
+        case CharacterClass::CLERIC :
+            this->weapon = Equippable::GetItem("Mace");
+            this->armour = Equippable::GetItem("Chainmail");
+            break;
+        case CharacterClass::WIZARD :
+            this->armour = Equippable::GetItem("Robes");
+            break;
+        default:
+            break;
+    }
+
+
     // Attribute modifiers come from species
     switch (this->species) {
         case Species::HUMAN :
