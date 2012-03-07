@@ -120,10 +120,6 @@ Character::Character(std::string name, Species::Type inSpecies,
             break;
     }
 
-    //Start us off healthy
-    this->curr_hp = this->max_hp;
-    this->curr_mp = this->max_mp;
-
     //Load portraits
     switch (this->cclass) {
         case CharacterClass::FIGHTER :
@@ -144,6 +140,43 @@ Character::Character(std::string name, Species::Type inSpecies,
         default:
             this->portrait = RSM::GetSurface("res/portraits/other.png");
             break;
+    }
+
+    //Start us off healthy
+    this->curr_hp = this->max_hp;
+    this->curr_mp = this->max_mp;
+
+    //Add up gear bonuses
+    TotalGearModifiers();
+}
+
+void
+Character::TotalGearModifiers(void) {
+    Equippable *e;
+    Equippable *gear[] = {
+        (Equippable*) this->headgear, 
+        (Equippable*) this->armour, 
+        (Equippable*) this->shield,
+        (Equippable*) this->weapon,
+        (Equippable*) this->boots,
+        (Equippable*) this->misc,
+        NULL
+    };
+
+    this->tot_att = this->att;
+    this->tot_def = this->def;
+    this->tot_str = this->str;
+    this->tot_tou = this->tou;
+    this->tot_wil = this->wil;
+    this->tot_spd = this->spd;
+
+    for (e = gear[0]; e; ++e) {
+        tot_att += e->att_mod;
+        tot_def += e->def_mod;
+        tot_str += e->str_mod;
+        tot_tou += e->tou_mod;
+        tot_wil += e->wil_mod;
+        tot_spd += e->spd_mod;
     }
 }
 
@@ -205,37 +238,38 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     ss << "MP: " << this->curr_mp << "/" << this->max_mp;
     FontHandler::WriteText(surf, relative, ss.str());
 
-    //Second block of text is stats
+    //Third block of text is stats
     relative = dest;
     relative.x += 20 * BLOCK_SIZE;
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Att: " << this->str;
+    ss << "Att: " << this->tot_str;
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Def: " << this->def;
+    ss << "Def: " << this->tot_def;
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Str: " << this->str;
+    ss << "Str: " << this->tot_str;
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Tou: " << this->tou;
+    ss << "Tou: " << this->tot_tou;
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Wil: " << this->wil;
+    ss << "Wil: " << this->tot_wil;
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Spd: " << this->spd;
+    ss << "Spd: " << this->tot_spd;
     FontHandler::WriteText(surf, relative, ss.str());
 
-    //Third block of text is equipment
+
+    //Fourth block of text is equipment
     relative = dest;
-    relative.x += 28 * BLOCK_SIZE;
+    relative.x += 30 * BLOCK_SIZE;
     relative.y += BLOCK_SIZE;
     ss.str("");
     ss << "Headgear: ";

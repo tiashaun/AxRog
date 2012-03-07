@@ -4,7 +4,13 @@
 #include "item.hpp"
 
 class Equippable : public Item {
-
+    public:
+    int att_mod;
+    int def_mod;
+    int str_mod;
+    int tou_mod;
+    int wil_mod;
+    int spd_mod;
 };
 
 class Weapon : public Equippable {};
