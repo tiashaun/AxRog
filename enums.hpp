@@ -1,6 +1,18 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+namespace Equipment {
+    typedef enum {
+        HEADGEAR,
+        WEAPON,
+        ARMOUR,
+        SHIELD,
+        BOOTS,
+        MISC,
+        LAST_EQUIPMENT_TYPE,
+    } Type;
+};
+
 namespace GameMode {
     typedef enum {
         MOVEMENT,

@@ -5,6 +5,8 @@
 #define PARTY_SCREEN_COLUMN_WIDTH   24
 #define PARTY_SCREEN_COLUMN_OFFSET  6
 
+#define LENGTH(x) (sizeof (x) / sizeof(x[0]))
+
 #include <sstream>
 
 Character::Character(std::string name, Species::Type inSpecies,
@@ -152,15 +154,14 @@ Character::Character(std::string name, Species::Type inSpecies,
 
 void
 Character::TotalGearModifiers(void) {
-    Equippable *e;
+    int i;
     Equippable *gear[] = {
-        (Equippable*) this->headgear, 
-        (Equippable*) this->armour, 
-        (Equippable*) this->shield,
-        (Equippable*) this->weapon,
-        (Equippable*) this->boots,
-        (Equippable*) this->misc,
-        NULL
+        this->headgear, 
+        this->armour, 
+        this->shield,
+        this->weapon,
+        this->boots,
+        this->misc
     };
 
     this->tot_att = this->att;
@@ -170,13 +171,15 @@ Character::TotalGearModifiers(void) {
     this->tot_wil = this->wil;
     this->tot_spd = this->spd;
 
-    for (e = gear[0]; e; ++e) {
-        tot_att += e->att_mod;
-        tot_def += e->def_mod;
-        tot_str += e->str_mod;
-        tot_tou += e->tou_mod;
-        tot_wil += e->wil_mod;
-        tot_spd += e->spd_mod;
+    for (i = 0; i < LENGTH(gear); ++i) {
+        if (gear[i]) {
+            tot_att += gear[i]->att_mod;
+            tot_def += gear[i]->def_mod;
+            tot_str += gear[i]->str_mod;
+            tot_tou += gear[i]->tou_mod;
+            tot_wil += gear[i]->wil_mod;
+            tot_spd += gear[i]->spd_mod;
+        }
     }
 }
 
@@ -238,12 +241,12 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     ss << "MP: " << this->curr_mp << "/" << this->max_mp;
     FontHandler::WriteText(surf, relative, ss.str());
 
-    //Third block of text is stats
+    //Second block of text is stats
     relative = dest;
     relative.x += 20 * BLOCK_SIZE;
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Att: " << this->tot_str;
+    ss << "Att: " << this->tot_att;
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
@@ -267,7 +270,7 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     FontHandler::WriteText(surf, relative, ss.str());
 
 
-    //Fourth block of text is equipment
+    //Third block of text is equipment
     relative = dest;
     relative.x += 30 * BLOCK_SIZE;
     relative.y += BLOCK_SIZE;

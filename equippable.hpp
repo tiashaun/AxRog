@@ -2,9 +2,14 @@
 #define EQUIPPABLE_H
 
 #include "item.hpp"
+#include "enums.hpp"
 
 class Equippable : public Item {
     public:
+    Equippable(char *name, Equipment::Type, int att, int def, int str, int tou,
+        int wil, int spd);
+
+    Equipment::Type type;
     int att_mod;
     int def_mod;
     int str_mod;
@@ -12,12 +17,5 @@ class Equippable : public Item {
     int wil_mod;
     int spd_mod;
 };
-
-class Weapon : public Equippable {};
-class Armour : public Equippable {};
-class HeadGear : public Equippable {};
-class Shield : public Equippable {};
-class Boots : public Equippable {};
-class Misc : public Equippable {};
 
 #endif
