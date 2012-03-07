@@ -4,11 +4,7 @@
 #include <SDL/SDL.h>
 #include "entity.hpp"
 #include "enums.hpp"
-#include "weapon.hpp"
-#include "helm.hpp"
-#include "armour.hpp"
-#include "misc.hpp"
-#include "boots.hpp"
+#include "equippable.hpp"
 
 class Character : public Entity {
     public:

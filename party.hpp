@@ -5,6 +5,8 @@
 
 #include "character.hpp"
 #include "room.hpp"
+#include "item.hpp"
+#include "equippable.hpp"
 
 class Party {
     public:
