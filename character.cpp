@@ -90,6 +90,7 @@ Character::Character(std::string name, Species::Type inSpecies,
     }
 
     //Startign equipment
+    this->boots = Equippable::GetItem("Cloth Boots");
     switch(this->cclass) {
         case CharacterClass::PALADIN :
         case CharacterClass::FIGHTER :
@@ -105,6 +106,7 @@ Character::Character(std::string name, Species::Type inSpecies,
             this->armour = Equippable::GetItem("Chainmail");
             break;
         case CharacterClass::WIZARD :
+            this->headgear = Equippable::GetItem("Wizard Hat");
             this->armour = Equippable::GetItem("Robes");
             break;
         default:
@@ -313,17 +315,17 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Shield:   ";
-    if (this->shield)
-        ss << this->shield->name;
+    ss << "Weapon:   ";
+    if (this->weapon)
+        ss << this->weapon->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Weapon:   ";
-    if (this->weapon)
-        ss << this->weapon->name;
+    ss << "Shield:   ";
+    if (this->shield)
+        ss << this->shield->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());

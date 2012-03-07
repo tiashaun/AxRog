@@ -14,6 +14,9 @@ EItem("Chainmail",     80,    Equipment::ARMOUR,     0,      -2,     0,      5, 
 EItem("Leather Armour",25,    Equipment::ARMOUR,     0,      -1,     0,      3,      0,      0),
 EItem("Robes",         5,     Equipment::ARMOUR,     0,      0,      0,      1,      0,      0),
 
+EItem("Wizard Hat",    5,     Equipment::HEADGEAR,   0,      0,      0,      0,      0,      0),
+
+EItem("Cloth Boots",   1,     Equipment::BOOTS,      0,      0,      0,      0,      0,      0),
 };
 
 Equippable::EItem*
