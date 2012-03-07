@@ -85,6 +85,7 @@ Character::Character(std::string name, Species::Type inSpecies,
             this->tou += 4;
             this->wil += 4;
             // this->spd += 0;
+            this->weapon = &equipment_list[0];
         default:
             break;
     }
