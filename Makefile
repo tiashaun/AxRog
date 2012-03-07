@@ -1,4 +1,4 @@
-CFLAGS += -ggdb -O0
+CFLAGS += -ggdb -O0 -std=c++0x
 OBJECTS=axrog.o tile.o room.o party.o map.o game.o resource.o fonthandler.o \
     entity.o character.o enemy.o item.o equippable.o
 EXTRAHEADS=geometry.hpp enums.hpp

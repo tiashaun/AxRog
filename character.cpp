@@ -148,7 +148,6 @@ Character::Character(std::string name, Species::Type inSpecies,
     this->curr_hp = this->max_hp;
     this->curr_mp = this->max_mp;
 
-    //Add up gear bonuses
     TotalGearModifiers();
 }
 

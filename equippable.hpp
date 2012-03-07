@@ -3,12 +3,13 @@
 
 #include "item.hpp"
 #include "enums.hpp"
+#include <string>
 
-class Equippable : public Item {
-    public:
-    Equippable(char *name, Equipment::Type, int att, int def, int str, int tou,
-        int wil, int spd);
-
+struct Equippable : Item {
+    inline Equippable(const std::string name, int value, Equipment::Type type,
+        int att_mod, int def_mod, int str_mod, int tou_mod, int wil_mod,
+        int spd_mod) : Item(name, value), att_mod(att_mod), def_mod(def_mod),
+        str_mod(str_mod),tou_mod(tou_mod), wil_mod(wil_mod), spd_mod(spd_mod) {}
     Equipment::Type type;
     int att_mod;
     int def_mod;
@@ -17,5 +18,7 @@ class Equippable : public Item {
     int wil_mod;
     int spd_mod;
 };
+
+extern Equippable equipment_list[];
 
 #endif

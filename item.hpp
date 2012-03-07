@@ -3,14 +3,10 @@
 
 #include <string>
 
-class Item {
-    public:
-    Item(char *name) {
-        this->name = name;
-    }
-
-    int value;
+struct Item {
+    inline Item(const std::string name, int value) : name(name), value(value) {}
     std::string name;
+    int value;
 };
 
 #endif
