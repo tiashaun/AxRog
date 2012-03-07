@@ -27,12 +27,12 @@ class Character : public Entity {
     int                     tot_wil;
     int                     tot_spd;
 
-    Equippable              *headgear;
-    Equippable              *armour;
-    Equippable              *shield;
-    Equippable              *weapon;
-    Equippable              *boots;
-    Equippable              *misc;
+    Equippable::EItem       *headgear;
+    Equippable::EItem       *armour;
+    Equippable::EItem       *shield;
+    Equippable::EItem       *weapon;
+    Equippable::EItem       *boots;
+    Equippable::EItem       *misc;
 };
 
 #endif

@@ -5,20 +5,22 @@
 #include "enums.hpp"
 #include <string>
 
-struct Equippable : Item {
-    inline Equippable(const std::string name, int value, Equipment::Type type,
-        int att_mod, int def_mod, int str_mod, int tou_mod, int wil_mod,
-        int spd_mod) : Item(name, value), att_mod(att_mod), def_mod(def_mod),
-        str_mod(str_mod),tou_mod(tou_mod), wil_mod(wil_mod), spd_mod(spd_mod) {}
-    Equipment::Type type;
-    int att_mod;
-    int def_mod;
-    int str_mod;
-    int tou_mod;
-    int wil_mod;
-    int spd_mod;
-};
+namespace Equippable {
+    struct EItem : Item {
+        inline EItem(const std::string name, int value, Equipment::Type type,
+            int att_mod, int def_mod, int str_mod, int tou_mod, int wil_mod,
+            int spd_mod) : Item(name, value), att_mod(att_mod), def_mod(def_mod),
+            str_mod(str_mod),tou_mod(tou_mod), wil_mod(wil_mod), spd_mod(spd_mod) {}
+        Equipment::Type type;
+        int att_mod;
+        int def_mod;
+        int str_mod;
+        int tou_mod;
+        int wil_mod;
+        int spd_mod;
+    };
 
-extern Equippable equipment_list[];
+    extern EItem equipment_list[];
+}
 
 #endif

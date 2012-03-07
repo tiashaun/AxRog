@@ -154,7 +154,7 @@ Character::Character(std::string name, Species::Type inSpecies,
 void
 Character::TotalGearModifiers(void) {
     int i;
-    Equippable *gear[] = {
+    Equippable::EItem *gear[] = {
         this->headgear, 
         this->armour, 
         this->shield,
