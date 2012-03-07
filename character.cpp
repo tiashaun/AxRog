@@ -15,11 +15,11 @@ Character::Character(std::string name, Species::Type inSpecies,
     this->level = 1;
     this->XP = 0;
 
-    this->head = NULL;
-    this->body = NULL;
-    this->left = NULL;
-    this->right = NULL;
-    this->feet = NULL;
+    this->headgear = NULL;
+    this->armour = NULL;
+    this->shield = NULL;
+    this->weapon = NULL;
+    this->boots = NULL;
     this->misc = NULL;
 
     // Basic attributes
@@ -238,47 +238,47 @@ Character::DrawPartyScreenLine(SDL_Surface *surf, SDL_Rect dest) {
     relative.x += 28 * BLOCK_SIZE;
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Head:  ";
-    if (this->head)
-        ss << this->head->name;
+    ss << "Headgear: ";
+    if (this->headgear)
+        ss << this->headgear->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Body:  ";
-    if (this->body)
-        ss << this->body->name;
+    ss << "Armour:   ";
+    if (this->armour)
+        ss << this->armour->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Left:  ";
-    if (this->left)
-        ss << this->left->name;
+    ss << "Shield:   ";
+    if (this->shield)
+        ss << this->shield->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Right: ";
-    if (this->right)
-        ss << this->right->name;
+    ss << "Weapon:   ";
+    if (this->weapon)
+        ss << this->weapon->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Feet:  ";
-    if (this->feet)
-        ss << this->feet->name;
+    ss << "Boots:    ";
+    if (this->boots)
+        ss << this->boots->name;
     else
         ss << "None";
     FontHandler::WriteText(surf, relative, ss.str());
     relative.y += BLOCK_SIZE;
     ss.str("");
-    ss << "Misc:  ";
+    ss << "Misc:     ";
     if (this->misc)
         ss << this->misc->name;
     else

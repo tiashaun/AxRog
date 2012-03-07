@@ -19,11 +19,11 @@ class Character : public Entity {
     Species::Type           species;
     SDL_Surface             *portrait;
 
-    Helm                    *head;
-    Armour                  *body;
-    Item                    *left;
-    Item                    *right;
-    Boots                   *feet;
+    HeadGear                *headgear;
+    Armour                  *armour;
+    Item                    *shield;
+    Weapon                  *weapon;
+    Boots                   *boots;
     Misc                    *misc;
 };
 
